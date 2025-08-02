@@ -1,18 +1,13 @@
-import os
 from typing import Union
 from fastapi import FastAPI
-from dotenv import load_dotenv
-from routers import users
-
-app = FastAPI()
-
-# Load .env file
-load_dotenv()
+from routers import users, advice
+from config import settings
 
 app = FastAPI()
 
 # Include routers from separate files
 app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(advice.router, prefix="/advice", tags=["advice"])
 
 @app.get("/")
 async def root():
