@@ -2,16 +2,21 @@ import os
 from typing import Union
 from fastapi import FastAPI
 from dotenv import load_dotenv
+from routers import users
 
 app = FastAPI()
 
 # Load .env file
 load_dotenv()
 
+app = FastAPI()
+
+# Include routers from separate files
+app.include_router(users.router, prefix="/users", tags=["users"])
+
 @app.get("/")
-async def read_root():
-    os.getenv("DB_URL")
-    return {"Hello": "World"}
+async def root():
+    return {"message": "Welcome to the FastAPI application!"}
 
 
 @app.get("/items/{item_id}")
