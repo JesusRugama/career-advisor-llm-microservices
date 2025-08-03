@@ -1,11 +1,15 @@
 from fastapi import APIRouter
+from pydantic import BaseModel
 from xai_client import get_career_advice
 
 router = APIRouter()
 
+class QuestionRequest(BaseModel):
+    question: str
+
 @router.post("/")
-async def post_career_advice_question():
-    result = await get_career_advice(HARDCODED_USER_PROFILE)
+async def post_career_advice_question(request: QuestionRequest):
+    result = await get_career_advice(HARDCODED_USER_PROFILE, request.question)
     return result
 
 
