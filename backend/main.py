@@ -1,13 +1,14 @@
 from typing import Union
 from fastapi import FastAPI
-from routers import users, advice
+from routers import users, advice, prompts
 from config import settings
 
 app = FastAPI()
 
 # Include routers from separate files
-app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(advice.router, prefix="/advice", tags=["advice"])
+app.include_router(prompts.router, prefix="/prompts", tags=["prompts"])
+app.include_router(users.router, prefix="/users", tags=["users"])
 
 @app.get("/")
 async def root():
