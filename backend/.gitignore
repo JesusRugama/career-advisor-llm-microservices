@@ -1,4 +1,4 @@
-venv/
+.venv/
 .env*
 .vscode/
 .idea/
@@ -6,3 +6,21 @@ __pycache__
 .DS_Store
 Thumbs.db
 user_profile.py
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Alembic migration files (keep structure, ignore specific migrations)
+alembic/versions/*.py
+!alembic/versions/.gitkeep
+
+# Docker volumes and data
+postgres_data/
+*.log
+
+# IDE and editor files
+*.swp
+*.swo
+*~

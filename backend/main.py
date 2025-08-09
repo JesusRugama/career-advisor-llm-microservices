@@ -1,10 +1,11 @@
 from typing import Union
 from fastapi import FastAPI
-from routers import users, advice, prompts
+from routers import users, conversations, prompts
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
+from database import create_tables
 
-app = FastAPI()
+app = FastAPI(title="Career Advisor API", version="1.0.0")
 
 origins = [
     "http://localhost:5173",
@@ -18,15 +19,19 @@ app.add_middleware(
     allow_headers=["*"],    # Allow all headers
 )
 
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on startup"""
+    await create_tables()
+
 # Include routers from separate files
-app.include_router(advice.router, prefix="/advice", tags=["advice"])
-app.include_router(prompts.router, prefix="/prompts", tags=["prompts"])
-app.include_router(users.router, prefix="/users", tags=["users"])
+app.include_router(conversations.router, prefix="/api", tags=["conversations"])
+app.include_router(users.router, prefix="/api", tags=["users"])
+app.include_router(prompts.router, prefix="/api", tags=["prompts"])
 
-@app.get("/")
-async def root():
-    return {"message": "Welcome to the FastAPI application!"}
-
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy"}
 
 @app.get("/items/{item_id}")
 async def read_item(item_id: int, q: Union[str, None] = None):
