@@ -8,7 +8,8 @@ from uuid import UUID
 from xai_client import get_career_advice
 from user_profile.user_profile import HARDCODED_USER_PROFILE
 from database import get_db
-from models.conversation import Conversation, Message
+from models.conversation import Conversation
+from models.message import Message
 from models.user import User
 
 router = APIRouter()

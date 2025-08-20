@@ -74,12 +74,10 @@ def upgrade() -> None:
     sa.Column('conversation_id', sa.UUID(), nullable=False),
     sa.Column('role', sa.String(length=50), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
-    sa.Column('prompt_id', sa.UUID(), nullable=True),
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['conversation_id'], ['conversations.id'], ),
-    sa.ForeignKeyConstraint(['prompt_id'], ['prompts.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('message_vectors',

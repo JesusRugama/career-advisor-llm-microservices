@@ -1,6 +1,10 @@
 from .base import Base
-from .user import User, UserProfile
-from .conversation import Conversation, ConversationSummary, Message, MessageVector
+from .user import User
+from .user_profile import UserProfile
+from .conversation import Conversation
+from .message_vector import MessageVector
+from .conversation_summary import ConversationSummary
+from .message import Message
 from .prompt import Prompt
 
 __all__ = [

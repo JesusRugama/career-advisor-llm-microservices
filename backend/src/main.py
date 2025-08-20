@@ -1,8 +1,6 @@
-from typing import Union
 from fastapi import FastAPI
 from routers import users, conversations, prompts
 from fastapi.middleware.cors import CORSMiddleware
-from config import settings
 from database import create_tables
 
 app = FastAPI(title="Career Advisor API", version="1.0.0")

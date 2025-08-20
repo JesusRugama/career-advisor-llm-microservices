@@ -13,5 +13,4 @@ class Message(BaseModel):
     
     # Relationships
     conversation = relationship("Conversation", back_populates="messages")
-    prompt = relationship("Prompt")
     vector = relationship("MessageVector", back_populates="message", uselist=False)
