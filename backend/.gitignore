@@ -5,7 +5,6 @@
 __pycache__
 .DS_Store
 Thumbs.db
-user_profile.py
 
 # Database files
 *.db
@@ -13,8 +12,8 @@ user_profile.py
 *.sqlite3
 
 # Alembic migration files (keep structure, ignore specific migrations)
-alembic/versions/*.py
-!alembic/versions/.gitkeep
+migrations/versions/*.py
+!migrations/versions/.gitkeep
 
 # Docker volumes and data
 postgres_data/
@@ -24,3 +23,5 @@ postgres_data/
 *.swp
 *.swo
 *~
+
+src/user_profile

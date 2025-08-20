@@ -32,7 +32,3 @@ app.include_router(prompts.router, prefix="/api", tags=["prompts"])
 @app.get("/api/health")
 async def health_check():
     return {"status": "healthy"}
-
-@app.get("/items/{item_id}")
-async def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
