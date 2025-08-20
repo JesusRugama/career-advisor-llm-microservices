@@ -11,10 +11,6 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
-# Alembic migration files (keep structure, ignore specific migrations)
-migrations/versions/*.py
-!migrations/versions/.gitkeep
-
 # Docker volumes and data
 postgres_data/
 *.log
