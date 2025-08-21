@@ -1,29 +1,38 @@
-from fastapi import APIRouter
-
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from database import get_db
 from uuid import UUID
+from sqlalchemy import select
+from pydantic import BaseModel
 from typing import List
-import uuid
+from models.prompt import Prompt
 
 router = APIRouter()
 
-class PromptResponse(BaseModel):
+class PromptBase(BaseModel):
     id: UUID
     title: str
-    prompt: str
+    prompt_text: str
 
-class PromptList(BaseModel):
+    class Config:
+        from_attributes = True
+
+class PromptListResponse(BaseModel):
     success: bool
-    prompts: List[PromptResponse]
+    prompts: List[PromptBase]
 
-@router.get("/prompts")
-def get_predefined_prompts() -> PromptList:
+@router.get("/prompts", response_model=PromptListResponse)
+async def get_predefined_prompts(db: AsyncSession = Depends(get_db)):
     """
     Get predefined career advice prompts to help users get started
     """
 
+    try:
+        prompts = await db.scalars(select(Prompt).where(Prompt.is_active == True))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
-    return PromptList(
+    return PromptListResponse(
         success=True,
-        prompts=prompts
+        prompts=list(prompts)
     )

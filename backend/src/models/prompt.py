@@ -7,4 +7,4 @@ class Prompt(BaseModel):
     title = Column(String(255), nullable=False)
     prompt_text = Column(Text, nullable=False)
     category = Column(String(100))
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True, server_default='true', nullable=False)

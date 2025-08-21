@@ -1,8 +1,8 @@
-"""empty message
+"""seed prompts
 
-Revision ID: 74778adc97cb
+Revision ID: a37ae725539d
 Revises: 16dd08f5ab2b
-Create Date: 2025-08-20 17:26:53.575590
+Create Date: 2025-08-20 20:30:10.078326
 
 """
 from typing import Sequence, Union
@@ -13,10 +13,11 @@ import uuid
 
 
 # revision identifiers, used by Alembic.
-revision: str = '74778adc97cb'
+revision: str = 'a37ae725539d'
 down_revision: Union[str, None] = '16dd08f5ab2b'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
 
 def upgrade() -> None:
     prompts_table = sa.Table(
@@ -24,7 +25,7 @@ def upgrade() -> None:
         sa.MetaData(),
         autoload_with=op.get_bind()
     )
-    
+
     op.bulk_insert(prompts_table, [
         {
             'id': uuid.uuid4(),
