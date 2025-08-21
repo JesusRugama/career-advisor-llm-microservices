@@ -24,7 +24,6 @@ async def get_predefined_prompts(db: AsyncSession = Depends(get_db)):
     """
     Get predefined career advice prompts to help users get started
     """
-
     try:
         prompts = await db.scalars(select(Prompt).where(Prompt.is_active == True))
     except Exception as e:
