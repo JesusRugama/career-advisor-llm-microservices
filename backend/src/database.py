@@ -29,3 +29,6 @@ async def create_tables():
         # Enable pgvector extension
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         await conn.run_sync(Base.metadata.create_all)
+
+async def close_engine():
+    await engine.dispose()

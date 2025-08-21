@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from routers import users, conversations, prompts
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
-from database import create_tables
+from database import create_tables, close_engine
 
 app = FastAPI(title="Career Advisor API", version="1.0.0")
 
@@ -17,10 +18,12 @@ app.add_middleware(
     allow_headers=["*"],    # Allow all headers
 )
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize database on startup"""
-    await create_tables()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Handle startup and shutdown events."""
+    await create_tables()  # Initialize database on startup
+    yield
+    await close_engine()  # Properly close the database engine
 
 # Include routers from separate files
 app.include_router(conversations.router, prefix="/api", tags=["conversations"])

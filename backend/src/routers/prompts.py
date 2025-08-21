@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database import get_db
 from uuid import UUID
 from sqlalchemy import select
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List
 from models.prompt import Prompt
 
@@ -13,9 +13,7 @@ class PromptBase(BaseModel):
     id: UUID
     title: str
     prompt_text: str
-
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class PromptListResponse(BaseModel):
     success: bool

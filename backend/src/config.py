@@ -1,5 +1,5 @@
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -15,11 +15,12 @@ class Settings(BaseSettings):
     
     # Application Configuration
     debug: bool = False
-    
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        case_sensitive = False
+
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False
+    )
 
 
 # Global settings instance
