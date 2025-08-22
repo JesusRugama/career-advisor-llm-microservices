@@ -19,13 +19,13 @@ help:
 
 # Testing commands
 test:
-	.venv/bin/python -m pytest tests/
+	.venv/bin/python -m pytest src/
 
 test-verbose:
-	.venv/bin/python -m pytest tests/ -v
+	.venv/bin/python -m pytest src/ -v
 
 test-coverage:
-	.venv/bin/python -m pytest tests/ --cov=src --cov-report=term-missing
+	.venv/bin/python -m pytest src/ --cov=src --cov-report=term-missing
 
 # Development setup
 install:
@@ -55,7 +55,7 @@ clean:
 	find . -type d -name ".pytest_cache" -exec rm -rf {} +
 
 lint:
-	.venv/bin/python -m flake8 src/ tests/
+	.venv/bin/python -m flake8 src/
 
 format:
-	.venv/bin/python -m black src/ tests/
+	.venv/bin/python -m black src/
