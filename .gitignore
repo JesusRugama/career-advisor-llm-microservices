@@ -20,4 +20,4 @@ postgres_data/
 *.swo
 *~
 
-src/user_profile
+src/user_profile/user_profile.py
