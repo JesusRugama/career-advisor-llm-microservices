@@ -44,6 +44,9 @@ jobs:
         source .venv/bin/activate
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+
+    - name: Copy user_profile
+      run: cp src/user_profile/user_profile_template.py src/user_profile/user_profile.py
     
     - name: Set up test database environment
       env:
