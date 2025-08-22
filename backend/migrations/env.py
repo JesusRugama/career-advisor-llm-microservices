@@ -1,9 +1,9 @@
 from logging.config import fileConfig
 import os
 import sys
-import asyncio
+
+from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 from alembic import context
 
@@ -32,32 +32,23 @@ target_metadata = Base.metadata
 # ... etc.
 
 
-async def run_migrations_online():
-    """Run migrations in 'online' mode with async engine."""
-    connectable = create_async_engine(
-        config.get_main_option("sqlalchemy.url"),
-        poolclass=pool.NullPool
-    )
+def run_migrations_offline() -> None:
+    """Run migrations in 'offline' mode.
 
-    async with connectable.connect() as connection:
-        await connection.run_sync(do_run_migrations)
-    
-    await connectable.dispose()
+    This configures the context with just a URL
+    and not an Engine, though an Engine is acceptable
+    here as well.  By skipping the Engine creation
+    we don't even need a DBAPI to be available.
 
+    Calls to context.execute() here emit the given string to the
+    script output.
 
-def do_run_migrations(connection):
-    """Helper function to run migrations synchronously within async context."""
-    context.configure(
-        connection=connection, 
-        target_metadata=target_metadata
-    )
-
-    with context.begin_transaction():
-        context.run_migrations()
-
-def run_migrations_offline():
-    """Run migrations in 'offline' mode (no DB connection)."""
+    """
     url = config.get_main_option("sqlalchemy.url")
+    # Convert asyncpg URL to psycopg2 for sync operations
+    if url and "postgresql+asyncpg://" in url:
+        url = url.replace("postgresql+asyncpg://", "postgresql://")
+    
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -68,7 +59,36 @@ def run_migrations_offline():
     with context.begin_transaction():
         context.run_migrations()
 
+
+def run_migrations_online() -> None:
+    """Run migrations in 'online' mode.
+
+    In this scenario we need to create an Engine
+    and associate a connection with the context.
+
+    """
+    # Get configuration and convert asyncpg URL to psycopg2 for sync operations
+    configuration = config.get_section(config.config_ini_section, {})
+    database_url = configuration.get("sqlalchemy.url")
+    if database_url and "postgresql+asyncpg://" in database_url:
+        configuration["sqlalchemy.url"] = database_url.replace("postgresql+asyncpg://", "postgresql://")
+    
+    connectable = engine_from_config(
+        configuration,
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+
+    with connectable.connect() as connection:
+        context.configure(
+            connection=connection, target_metadata=target_metadata
+        )
+
+        with context.begin_transaction():
+            context.run_migrations()
+
+
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    asyncio.run(run_migrations_online())
+    run_migrations_online()

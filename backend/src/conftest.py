@@ -1,7 +1,8 @@
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy import pool
 from httpx import AsyncClient, ASGITransport
-from alembic import command, config  # Import Alembic for programmatic runs
+from alembic import command, config, context  # Import Alembic for programmatic runs
 from main import app  # Import your FastAPI app
 from database import Base, get_db  # Import your DB base and dependency
 import os
@@ -14,6 +15,13 @@ TEST_DATABASE_URL = os.getenv(
 engine = create_async_engine(TEST_DATABASE_URL, echo=True)  # echo for debugging
 TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
 
+def run_migrations_sync(alembic_cfg):
+    """Run Alembic migrations using standard sync approach."""
+    try:
+        command.upgrade(alembic_cfg, "head")
+    except Exception as e:
+        print(f"Migration error: {e}")
+        raise
 
 # Helper to get Alembic config (adapt if multi-domain; e.g., loop over domain migration paths)
 def get_alembic_config():
@@ -25,7 +33,7 @@ def get_alembic_config():
 @pytest_asyncio.fixture(scope="session")
 async def db_engine():
     alembic_cfg = get_alembic_config()
-    command.upgrade(alembic_cfg, "head")
+    run_migrations_sync(alembic_cfg)
     yield engine
     command.downgrade(alembic_cfg, "base")
 
