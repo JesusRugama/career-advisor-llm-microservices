@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql://postgres:postgres@localhost:5432/career_advisor"
     
     # XAI API Configuration
-    xai_api_key: str
+    xai_api_key: str = "test-key-not-used"  # Default for testing
     xai_base_url: str = "https://api.x.ai/v1"
     xai_model: str = "grok-4-latest"
     
