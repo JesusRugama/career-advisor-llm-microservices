@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
     # Database Configuration
-    database_url: str = "postgresql://postgres:postgres@localhost:5432/career_advisor"
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor"
     
     # XAI API Configuration
     xai_api_key: str = "test-key-not-used"  # Default for testing
