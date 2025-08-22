@@ -2,12 +2,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from uuid import UUID
 from typing import List
+from fastapi import Depends
 
+from database import get_db
 from .models import Message
 from domains.conversations.models import Conversation
 
 class MessageRepository:
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession = Depends(get_db)):
         self.db = db
     
     async def get_messages_by_conversation_id(self, conversation_id: UUID) -> List[Message]:

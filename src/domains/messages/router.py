@@ -1,11 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 
 from xai_client import get_career_advice
 from user_profile.user_profile import HARDCODED_USER_PROFILE
-from database import get_db
-from .models import Message
 from .schemas import MessageRequest, MessageResponse, ConversationResponse
 from .repository import MessageRepository
 
@@ -15,13 +12,12 @@ router = APIRouter()
 async def get_conversation_history(
     user_id: UUID,
     conversation_id: UUID,
-    db: AsyncSession = Depends(get_db)
+    repository: MessageRepository = Depends()
 ) -> ConversationResponse:
     """
     Get history for a specific conversation
     """
     try:
-        repository = MessageRepository(db)
         conversation, messages = await repository.get_conversation_with_messages(conversation_id, user_id)
         
         if not conversation:
@@ -55,12 +51,10 @@ async def post_conversation_message(
     user_id: UUID,
     conversation_id: UUID,
     request: MessageRequest,
-    db: AsyncSession = Depends(get_db)
+    repository: MessageRepository = Depends()
 ) -> MessageResponse:
     """Send a message to a specific conversation"""
     try:
-        repository = MessageRepository(db)
-        
         # Verify conversation exists and belongs to user
         conversation, _ = await repository.get_conversation_with_messages(conversation_id, user_id)
         
@@ -84,7 +78,7 @@ async def post_conversation_message(
             content=ai_response.get("response", "Sorry, I couldn't generate a response.")
         )
         
-        await db.commit()
+        await repository.db.commit()
         
         return MessageResponse(
             id=ai_message.id,
@@ -97,5 +91,5 @@ async def post_conversation_message(
     except HTTPException:
         raise
     except Exception as e:
-        await db.rollback()
+        await repository.db.rollback()
         raise HTTPException(status_code=500, detail=f"Error processing message: {str(e)}")

@@ -9,12 +9,12 @@ from .schemas import PromptListResponse
 router = APIRouter()
 
 @router.get("/prompts", response_model=PromptListResponse)
-async def get_prompts(service: PromptRepository = Depends(PromptRepository)):
+async def get_prompts(repository: PromptRepository = Depends()):
     """
     Get predefined career advice prompts to help users get started
     """
     try:
-        prompts = await service.get_active_prompts()
+        prompts = await repository.get_active_prompts()
         return PromptListResponse(
             success=True,
             prompts=prompts
