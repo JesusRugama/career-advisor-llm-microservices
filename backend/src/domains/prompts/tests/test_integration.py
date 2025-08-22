@@ -1,4 +1,5 @@
 import pytest
+import pytest_asyncio
 from uuid import uuid4
 import sys
 import os
@@ -14,23 +15,33 @@ from domains.prompts.models import Prompt
 class TestPromptsIntegration:
     """Integration tests for the prompts domain using real database."""
 
-    def test_get_prompts_empty_database(self, client):
-        """Test GET /api/prompts with empty database."""
-        response = client.get("/api/prompts")
-        
-        # Debug: Print response details if it's not 200
-        if response.status_code != 200:
-            print(f"Status Code: {response.status_code}")
-            print(f"Response Text: {response.text}")
-            print(f"Response JSON: {response.json() if response.headers.get('content-type') == 'application/json' else 'Not JSON'}")
+    @pytest.mark.asyncio
+    async def test_get_prompts_with_seed_data(self, client):
+        """Test GET /api/prompts with seed data from migrations."""
+        response = await client.get("/api/prompts")
         
         assert response.status_code == 200
         data = response.json()
 
         assert data["success"] is True
-        assert data["prompts"] == []
+        assert len(data["prompts"]) == 6  # Should have 6 seed prompts
+        
+        # Verify seed prompt titles are present
+        titles = [p["title"] for p in data["prompts"]]
+        expected_titles = [
+            "Career Path Guidance",
+            "Skill Development", 
+            "Leadership Transition",
+            "Industry Trends",
+            "Salary Negotiation",
+            "Work-Life Balance"
+        ]
+        
+        for title in expected_titles:
+            assert title in titles
 
-    def test_get_prompts_with_data(self, client, db_session):
+    @pytest.mark.asyncio
+    async def test_get_prompts_with_data(self, client, db_session):
         """Test GET /api/prompts with prompts in database."""
         # Create test prompts
         prompt1 = Prompt(
@@ -59,10 +70,10 @@ class TestPromptsIntegration:
         db_session.add(prompt1)
         db_session.add(prompt2)
         db_session.add(prompt3)
-        db_session.commit()
+        await db_session.commit()
 
         # Test the endpoint
-        response = client.get("/api/prompts")
+        response = await client.get("/api/prompts")
 
         assert response.status_code == 200
         data = response.json()
@@ -84,7 +95,8 @@ class TestPromptsIntegration:
         assert "Skill Development" in titles
         assert "Inactive Prompt" not in titles
 
-    def test_get_prompts_only_active(self, client, db_session):
+    @pytest.mark.asyncio
+    async def test_get_prompts_only_active(self, client, db_session):
         """Test that only active prompts are returned."""
         # Create mix of active and inactive prompts
         active_prompt = Prompt(
@@ -104,9 +116,9 @@ class TestPromptsIntegration:
 
         db_session.add(active_prompt)
         db_session.add(inactive_prompt)
-        db_session.commit()
+        await db_session.commit()
 
-        response = client.get("/api/prompts")
+        response = await client.get("/api/prompts")
 
         assert response.status_code == 200
         data = response.json()
@@ -114,21 +126,23 @@ class TestPromptsIntegration:
         assert len(data["prompts"]) == 1
         assert data["prompts"][0]["title"] == "Active Prompt"
 
-    def test_get_prompts_http_methods(self, client):
+    @pytest.mark.asyncio
+    async def test_get_prompts_http_methods(self, client):
         """Test that only GET method is allowed."""
         # Test POST method (should fail)
-        response = client.post("/api/prompts")
+        response = await client.post("/api/prompts")
         assert response.status_code == 405  # Method Not Allowed
 
         # Test PUT method (should fail)
-        response = client.put("/api/prompts")
+        response = await client.put("/api/prompts")
         assert response.status_code == 405  # Method Not Allowed
 
         # Test DELETE method (should fail)
-        response = client.delete("/api/prompts")
+        response = await client.delete("/api/prompts")
         assert response.status_code == 405  # Method Not Allowed
 
-    def test_get_prompts_response_structure(self, client, db_session):
+    @pytest.mark.asyncio
+    async def test_get_prompts_response_structure(self, client, db_session):
         """Test that response matches expected Pydantic schema structure."""
         # Create a test prompt
         prompt = Prompt(
@@ -140,9 +154,9 @@ class TestPromptsIntegration:
         )
 
         db_session.add(prompt)
-        db_session.commit()
+        await db_session.commit()
 
-        response = client.get("/api/prompts")
+        response = await client.get("/api/prompts")
 
         assert response.status_code == 200
         data = response.json()
