@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
 
-from .schemas import ConversationListResponse
+from .schemas import ConversationListResponse, ConversationBase
 from .repository import ConversationRepository
 
 router = APIRouter()
@@ -19,7 +19,7 @@ async def get_conversation_history(
 
         return ConversationListResponse(
             success=True,
-            conversations=conversations
+            conversations=[ConversationBase.model_validate(conv) for conv in conversations]
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -3,6 +3,7 @@ from domains.prompts import router as prompts_router
 from domains.conversations import router as conversations_router
 from domains.messages import router as messages_router
 from domains.users import router as users_router
+from domains.ai_service import router as ai_service_router
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from database import create_tables, close_engine
@@ -33,6 +34,7 @@ app.include_router(conversations_router.router, prefix="/api", tags=["conversati
 app.include_router(messages_router.router, prefix="/api", tags=["messages"])
 app.include_router(users_router.router, prefix="/api", tags=["users"])
 app.include_router(prompts_router.router, prefix="/api", tags=["prompts"])
+app.include_router(ai_service_router.router, prefix="/api", tags=["ai-service"])
 
 @app.get("/api/health")
 async def health_check():

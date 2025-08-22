@@ -11,14 +11,7 @@ async def get_users(repository: UserRepository = Depends()) -> UserListResponse:
     try:
         users = await repository.get_all_users()
         
-        user_responses = [
-            UserBase(
-                id=user.id,
-                name=user.name,
-                email=user.email
-            )
-            for user in users
-        ]
+        user_responses = [UserBase.model_validate(user) for user in users]
         
         return UserListResponse(
             success=True,

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
 
-from xai_client import get_career_advice
 from user_profile.user_profile import HARDCODED_USER_PROFILE
+from shared.ai_client import AIServiceClient
 from .schemas import MessageRequest, MessageResponse, ConversationResponse
 from .repository import MessageRepository
 
@@ -23,21 +23,12 @@ async def get_conversation_history(
         if not conversation:
             raise HTTPException(status_code=404, detail="Conversation not found")
         
-        message_responses = [
-            MessageResponse(
-                id=msg.id,
-                role=msg.role,
-                content=msg.content,
-                created_at=msg.created_at.isoformat(),
-                conversation_id=msg.conversation_id
-            )
-            for msg in messages
-        ]
+        message_responses = [MessageResponse.model_validate(msg) for msg in messages]
         
         return ConversationResponse(
             id=conversation.id,
             title=conversation.title,
-            created_at=conversation.created_at.isoformat(),
+            created_at=conversation.created_at,
             messages=message_responses
         )
         
@@ -68,8 +59,9 @@ async def post_conversation_message(
             content=request.message
         )
         
-        # Get AI response
-        ai_response = await get_career_advice(HARDCODED_USER_PROFILE, request.message)
+        # Get AI response using the AI service client
+        ai_client = AIServiceClient()
+        ai_response = await ai_client.get_career_advice(HARDCODED_USER_PROFILE, request.message)
         
         # Save AI message
         ai_message = await repository.create_message(
@@ -80,13 +72,7 @@ async def post_conversation_message(
         
         await repository.db.commit()
         
-        return MessageResponse(
-            id=ai_message.id,
-            role=ai_message.role,
-            content=ai_message.content,
-            created_at=ai_message.created_at.isoformat(),
-            conversation_id=ai_message.conversation_id
-        )
+        return MessageResponse.model_validate(ai_message)
         
     except HTTPException:
         raise
