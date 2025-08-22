@@ -5,7 +5,6 @@ from .conversation import Conversation
 from .message_vector import MessageVector
 from .conversation_summary import ConversationSummary
 from .message import Message
-from .prompt import Prompt
 
 __all__ = [
     "Base",
@@ -14,6 +13,5 @@ __all__ = [
     "Conversation",
     "ConversationSummary",
     "Message",
-    "MessageVector",
-    "Prompt"
+    "MessageVector"
 ]

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from routers import users, messages, prompts, conversations
+from routers import users, messages, conversations
+from domains.prompts import router as prompts_router
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from database import create_tables, close_engine
@@ -29,7 +30,7 @@ async def lifespan(app: FastAPI):
 app.include_router(conversations.router, prefix="/api", tags=["conversations"])
 app.include_router(messages.router, prefix="/api", tags=["messages"])
 app.include_router(users.router, prefix="/api", tags=["users"])
-app.include_router(prompts.router, prefix="/api", tags=["prompts"])
+app.include_router(prompts_router.router, prefix="/api", tags=["prompts"])
 
 @app.get("/api/health")
 async def health_check():

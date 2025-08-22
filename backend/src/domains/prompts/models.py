@@ -1,5 +1,9 @@
 from sqlalchemy import Column, String, Text, Boolean
-from .base import BaseModel
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from models.base import BaseModel
 
 class Prompt(BaseModel):
     __tablename__ = "prompts"

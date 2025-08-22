@@ -5,10 +5,10 @@ import sys
 import os
 
 # Add src to path so we can import our modules
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 from main import app
-from models.prompt import Prompt
+from domains.prompts.models import Prompt
 from uuid import uuid4
 
 
