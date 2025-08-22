@@ -1,13 +1,19 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
+from fastapi import Depends
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from database import get_db
 from .models import Prompt
 from .schemas import PromptBase
 
-class PromptService:
-    """Service class for prompt-related business logic."""
+class PromptRepository:
+    """Repository class for prompt-related business logic."""
     
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession = Depends(get_db)):
         self.db = db
     
     async def get_active_prompts(self) -> List[PromptBase]:
