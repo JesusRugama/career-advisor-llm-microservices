@@ -1,35 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 from uuid import UUID
 
 from xai_client import get_career_advice
 from user_profile.user_profile import HARDCODED_USER_PROFILE
 from database import get_db
-from models.conversation import Conversation
-from models.message import Message
-from models.user import User
+from .models import Message
+from .schemas import MessageRequest, MessageResponse, ConversationResponse
+from .repository import MessageRepository
 
 router = APIRouter()
-
-class MessageRequest(BaseModel):
-    message: str
-    conversation_id: Optional[UUID] = None
-
-class MessageResponse(BaseModel):
-    id: UUID
-    role: str
-    content: str
-    created_at: str
-    conversation_id: UUID
-
-class ConversationResponse(BaseModel):
-    id: UUID
-    title: str
-    created_at: str
-    messages: List[MessageResponse]
 
 @router.get("/users/{user_id}/conversations/{conversation_id}/history")
 async def get_conversation_history(
@@ -41,24 +21,11 @@ async def get_conversation_history(
     Get history for a specific conversation
     """
     try:
-        # Get the specific conversation
-        conv_result = await db.execute(
-            select(Conversation)
-            .where(Conversation.id == conversation_id)
-            .where(Conversation.user_id == user_id)
-        )
-        conversation = conv_result.scalars().first()
+        repository = MessageRepository(db)
+        conversation, messages = await repository.get_conversation_with_messages(conversation_id, user_id)
         
         if not conversation:
             raise HTTPException(status_code=404, detail="Conversation not found")
-        
-        # Get messages for this conversation
-        messages_result = await db.execute(
-            select(Message)
-            .where(Message.conversation_id == conversation_id)
-            .order_by(Message.created_at.asc())
-        )
-        messages = messages_result.scalars().all()
         
         message_responses = [
             MessageResponse(
@@ -92,35 +59,30 @@ async def post_conversation_message(
 ) -> MessageResponse:
     """Send a message to a specific conversation"""
     try:
+        repository = MessageRepository(db)
+        
         # Verify conversation exists and belongs to user
-        conv_result = await db.execute(
-            select(Conversation)
-            .where(Conversation.id == conversation_id)
-            .where(Conversation.user_id == user_id)
-        )
-        conversation = conv_result.scalars().first()
+        conversation, _ = await repository.get_conversation_with_messages(conversation_id, user_id)
         
         if not conversation:
             raise HTTPException(status_code=404, detail="Conversation not found")
         
         # Save user message
-        user_message = Message(
+        user_message = await repository.create_message(
             conversation_id=conversation_id,
             role="user",
             content=request.message
         )
-        db.add(user_message)
         
         # Get AI response
         ai_response = await get_career_advice(HARDCODED_USER_PROFILE, request.message)
         
         # Save AI message
-        ai_message = Message(
+        ai_message = await repository.create_message(
             conversation_id=conversation_id,
             role="assistant",
             content=ai_response.get("response", "Sorry, I couldn't generate a response.")
         )
-        db.add(ai_message)
         
         await db.commit()
         

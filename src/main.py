@@ -1,6 +1,8 @@
 from fastapi import FastAPI
-from routers import users, messages, conversations
 from domains.prompts import router as prompts_router
+from domains.conversations import router as conversations_router
+from domains.messages import router as messages_router
+from domains.users import router as users_router
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from database import create_tables, close_engine
@@ -26,10 +28,10 @@ async def lifespan(app: FastAPI):
     yield
     await close_engine()  # Properly close the database engine
 
-# Include routers from separate files
-app.include_router(conversations.router, prefix="/api", tags=["conversations"])
-app.include_router(messages.router, prefix="/api", tags=["messages"])
-app.include_router(users.router, prefix="/api", tags=["users"])
+# Include routers from domain structure
+app.include_router(conversations_router.router, prefix="/api", tags=["conversations"])
+app.include_router(messages_router.router, prefix="/api", tags=["messages"])
+app.include_router(users_router.router, prefix="/api", tags=["users"])
 app.include_router(prompts_router.router, prefix="/api", tags=["prompts"])
 
 @app.get("/api/health")

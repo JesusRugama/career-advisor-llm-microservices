@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
-from .base import BaseModel
+from models.base import BaseModel
 
 class Conversation(BaseModel):
     __tablename__ = "conversations"
