@@ -12,7 +12,12 @@ TEST_DATABASE_URL = os.getenv(
     "postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor_test"
 )
 
-engine = create_async_engine(TEST_DATABASE_URL, echo=True)  # echo for debugging
+engine = create_async_engine(
+    TEST_DATABASE_URL, 
+    echo=True,  # echo for debugging
+    poolclass=pool.NullPool,  # Disable connection pooling to avoid conflicts
+    future=True
+)
 TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
 
 def run_migrations_sync(alembic_cfg):
@@ -37,16 +42,18 @@ async def db_engine():
     yield engine
     command.downgrade(alembic_cfg, "base")
 
-# Function-scoped fixture: Provide session with nested transaction for rollback
+# Function-scoped fixture: Provide session with fresh connection per test
 @pytest_asyncio.fixture(scope="function")
 async def db_session(db_engine):
-    connection = await db_engine.connect()
-    transaction = await connection.begin_nested()
-    session = TestingSessionLocal(bind=connection)
-    yield session
-    await session.close()
-    await transaction.rollback()
-    await connection.close()
+    # Create a fresh connection for each test to avoid AsyncPG conflicts
+    async with db_engine.connect() as conn:
+        # Create session bound to this specific connection
+        session_maker = async_sessionmaker(bind=conn, class_=AsyncSession, expire_on_commit=False)
+        async with session_maker() as session:
+            try:
+                yield session
+            finally:
+                await session.rollback()  # Rollback any uncommitted changes
 
 @pytest_asyncio.fixture(scope="function")
 async def client(db_session):
