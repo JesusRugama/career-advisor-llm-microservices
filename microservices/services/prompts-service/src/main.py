@@ -1,12 +1,15 @@
 import sys
 import os
+# Add shared directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
+# Add current directory to path for local imports
+sys.path.append(os.path.dirname(__file__))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from database import create_tables, close_engine
-from router import router as prompts_router
+from routes import router as prompts_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

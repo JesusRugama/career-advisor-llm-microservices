@@ -31,5 +31,4 @@ EXPOSE 8000
 # Expose port for debugger
 EXPOSE 5678
 
-# Default command (can be overridden in docker-compose)
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["fastapi", "dev", "main.py", "--host", "0.0.0.0", "--port", "8000"]
