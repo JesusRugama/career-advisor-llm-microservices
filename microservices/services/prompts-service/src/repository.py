@@ -1,0 +1,25 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from typing import List
+from fastapi import Depends
+
+from database import get_db
+from models import Prompt
+from schemas import PromptBase
+
+class PromptRepository:
+    """Repository class for prompt-related business logic."""
+    
+    def __init__(self, db: AsyncSession = Depends(get_db)):
+        self.db = db
+    
+    async def get_active_prompts(self) -> List[PromptBase]:
+        """Get all active prompts from the database."""
+        prompts = await self.db.scalars(
+            select(Prompt).where(Prompt.is_active == True)
+        )
+        return [PromptBase.model_validate(prompt) for prompt in prompts]
