@@ -4,10 +4,11 @@ from uuid import uuid4
 import sys
 import os
 
-# Add src to path so we can import our modules
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+# Add paths for microservices setup
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from domains.prompts.models import Prompt
+from models import Prompt
 
 # Fixtures are automatically discovered from conftest.py
 # No need to import client, db_session - pytest will find them
