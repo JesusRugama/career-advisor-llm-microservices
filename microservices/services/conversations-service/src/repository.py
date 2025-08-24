@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from uuid import UUID
@@ -5,7 +9,7 @@ from typing import List
 from fastapi import Depends
 
 from database import get_db
-from .models import Conversation
+from models import Conversation
 
 class ConversationRepository:
     def __init__(self, db: AsyncSession = Depends(get_db)):

@@ -1,6 +1,9 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../shared'))
+# Add shared directory to path
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
+# Add current directory to path for local imports
+sys.path.append(os.path.dirname(__file__))
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

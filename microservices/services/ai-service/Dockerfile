@@ -9,8 +9,8 @@ RUN apt-get update && apt-get install -y \
 # Set up the directory structure to match local development
 WORKDIR /app/microservices
 
-# Copy requirements from the main project (build context is backend root)
-COPY microservices/requirements.txt .
+# Copy service-specific requirements
+COPY microservices/services/ai-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install development dependencies

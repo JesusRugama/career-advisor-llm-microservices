@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 
-from .schemas import CareerAdviceRequest, CareerAdviceResponse
-from .service import AIService
+from schemas import CareerAdviceRequest, CareerAdviceResponse
+from service import AIService
 
 router = APIRouter()
 

@@ -1,10 +1,16 @@
+import sys
+import os
+# Add shared directory to path
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
+# Add current directory to path for local imports
+sys.path.append(os.path.dirname(__file__))
+
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
-
 from user_profile.user_profile import HARDCODED_USER_PROFILE
-from shared.ai_client import AIServiceClient
-from .schemas import MessageRequest, MessageResponse, ConversationResponse
-from .repository import MessageRepository
+from ai_client import AIServiceClient
+from schemas import MessageRequest, MessageResponse, ConversationResponse
+from repository import MessageRepository
 
 router = APIRouter()
 

@@ -1,7 +1,11 @@
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../shared'))
+
 from sqlalchemy import Column, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
-from models.base import BaseModel
+from base import BaseModel
 
 class Message(BaseModel):
     __tablename__ = "messages"

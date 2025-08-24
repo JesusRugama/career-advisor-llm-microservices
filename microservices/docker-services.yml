@@ -18,7 +18,82 @@ services:
       timeout: 5s
       retries: 5
 
-  # Prompts Service (Development Mode with Volume Mounts)
+  # API Gateway - Nginx reverse proxy on port 8000
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - users-service
+      - conversations-service
+      - messages-service
+      - prompts-service
+      - ai-service
+    restart: unless-stopped
+
+  # Users Service
+  users-service:
+    build:
+      context: ../
+      dockerfile: microservices/services/users-service/Dockerfile
+    ports:
+      - "8001:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/career_advisor
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./services/users-service/src:/app/microservices/services/users-service/src
+      - ./shared:/app/microservices/shared
+    depends_on:
+      postgres:
+        condition: service_healthy
+    tty: true
+    stdin_open: true
+
+  # Conversations Service
+  conversations-service:
+    build:
+      context: ../
+      dockerfile: microservices/services/conversations-service/Dockerfile
+    ports:
+      - "8002:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/career_advisor
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./services/conversations-service/src:/app/microservices/services/conversations-service/src
+      - ./shared:/app/microservices/shared
+    depends_on:
+      postgres:
+        condition: service_healthy
+    tty: true
+    stdin_open: true
+
+  # Messages Service
+  messages-service:
+    build:
+      context: ../
+      dockerfile: microservices/services/messages-service/Dockerfile
+    ports:
+      - "8003:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/career_advisor
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./services/messages-service/src:/app/microservices/services/messages-service/src
+      - ./shared:/app/microservices/shared
+    depends_on:
+      postgres:
+        condition: service_healthy
+    tty: true
+    stdin_open: true
+
+  # Prompts Service
   prompts-service:
     build:
       context: ../
@@ -27,16 +102,35 @@ services:
       - "8004:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/career_advisor
-      - PYTHONDONTWRITEBYTECODE=1  # Don't write .pyc files
-      - PYTHONUNBUFFERED=1         # Force stdout/stderr to be unbuffered
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
     volumes:
-      # Mount source code for real-time editing
       - ./services/prompts-service/src:/app/microservices/services/prompts-service/src
       - ./shared:/app/microservices/shared
     depends_on:
       postgres:
         condition: service_healthy
-    # Keep container alive for debugging
+    tty: true
+    stdin_open: true
+
+  # AI Service
+  ai-service:
+    build:
+      context: ../
+      dockerfile: microservices/services/ai-service/Dockerfile
+    ports:
+      - "8005:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/career_advisor
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./services/ai-service/src:/app/microservices/services/ai-service/src
+      - ./shared:/app/microservices/shared
+    depends_on:
+      postgres:
+        condition: service_healthy
     tty: true
     stdin_open: true
 

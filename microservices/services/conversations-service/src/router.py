@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
 
-from .schemas import ConversationListResponse, ConversationBase
-from .repository import ConversationRepository
+from schemas import ConversationListResponse, ConversationBase
+from repository import ConversationRepository
 
 router = APIRouter()
 
