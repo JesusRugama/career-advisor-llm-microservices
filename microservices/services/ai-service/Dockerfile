@@ -20,10 +20,10 @@ RUN pip install --no-cache-dir ipdb debugpy
 COPY microservices/shared ./shared
 
 # Copy service code to match local structure (build context is backend root)
-COPY microservices/services/messages-service ./services/messages-service
+COPY microservices/services/ai-service ./services/ai-service
 
 # Set working directory to the service source directory (matching local development)
-WORKDIR /app/microservices/services/messages-service/src
+WORKDIR /app/microservices/services/ai-service/src
 
 # Expose port for FastAPI
 EXPOSE 8000

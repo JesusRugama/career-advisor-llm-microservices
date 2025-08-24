@@ -1,21 +1,34 @@
-FROM python:3.11-slim
+FROM python:3.10-slim
 
-WORKDIR /app
+# Install development tools
+RUN apt-get update && apt-get install -y \
+    curl \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements from the main project
-COPY ../../../requirements.txt .
+# Set up the directory structure to match local development
+WORKDIR /app/microservices
+
+# Copy requirements from the main project (build context is backend root)
+COPY microservices/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy shared utilities
-COPY ../../shared /app/shared
+# Install development dependencies
+RUN pip install --no-cache-dir ipdb debugpy
 
-# Copy service code
-COPY src /app/src
+# Copy shared utilities to match local structure (build context is backend root)
+COPY microservices/shared ./shared
 
-WORKDIR /app/src
+# Copy service code to match local structure (build context is backend root)
+COPY microservices/services/users-service ./services/users-service
 
-# Expose port
+# Set working directory to the service source directory (matching local development)
+WORKDIR /app/microservices/services/users-service/src
+
+# Expose port for FastAPI
 EXPOSE 8000
 
-# Run the service
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Expose port for debugger
+EXPOSE 5678
+
+CMD ["fastapi", "dev", "main.py", "--host", "0.0.0.0", "--port", "8000"]
