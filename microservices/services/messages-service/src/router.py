@@ -7,35 +7,33 @@ sys.path.append(os.path.dirname(__file__))
 
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
-from user_profile.user_profile import HARDCODED_USER_PROFILE
-from ai_client import AIServiceClient
-from schemas import MessageRequest, MessageResponse, ConversationResponse
+from schemas import MessageListResponse, MessageBase, CreateMessageRequest, MessageResponse
 from repository import MessageRepository
+from feign_clients.conversations_client import ConversationsClient
 
 router = APIRouter()
 
-@router.get("/users/{user_id}/conversations/{conversation_id}/history")
-async def get_conversation_history(
+@router.get("/users/{user_id}/conversations/{conversation_id}/messages")
+async def get_conversation_messages(
     user_id: UUID,
     conversation_id: UUID,
     repository: MessageRepository = Depends()
-) -> ConversationResponse:
+) -> MessageListResponse:
     """
     Get history for a specific conversation
     """
     try:
-        conversation, messages = await repository.get_conversation_with_messages(conversation_id, user_id)
-        
-        if not conversation:
+        conversations_client = ConversationsClient()
+        conversation_exists = await conversations_client.conversation_exists(conversation_id, user_id)
+
+        if not conversation_exists:
             raise HTTPException(status_code=404, detail="Conversation not found")
-        
-        message_responses = [MessageResponse.model_validate(msg) for msg in messages]
-        
-        return ConversationResponse(
-            id=conversation.id,
-            title=conversation.title,
-            created_at=conversation.created_at,
-            messages=message_responses
+
+        messages = await repository.get_messages_by_conversation_id(conversation_id)
+
+        return MessageListResponse(
+            success=True,
+            messages=[MessageBase.model_validate(msg) for msg in messages]
         )
         
     except HTTPException:
@@ -44,18 +42,19 @@ async def get_conversation_history(
         raise HTTPException(status_code=500, detail=f"Error retrieving conversation history: {str(e)}")
 
 @router.post("/users/{user_id}/conversations/{conversation_id}/message")
-async def post_conversation_message(
+async def create_conversation_message(
     user_id: UUID,
     conversation_id: UUID,
-    request: MessageRequest,
+    request: CreateMessageRequest,
     repository: MessageRepository = Depends()
 ) -> MessageResponse:
     """Send a message to a specific conversation"""
     try:
-        # Verify conversation exists and belongs to user
-        conversation, _ = await repository.get_conversation_with_messages(conversation_id, user_id)
+        # Verify conversation exists and belongs to user using conversations service
+        conversations_client = ConversationsClient()
+        conversation_exists = await conversations_client.conversation_exists(conversation_id, user_id)
         
-        if not conversation:
+        if not conversation_exists:
             raise HTTPException(status_code=404, detail="Conversation not found")
         
         # Save user message
@@ -65,23 +64,12 @@ async def post_conversation_message(
             content=request.message
         )
         
-        # Get AI response using the AI service client
-        ai_client = AIServiceClient()
-        ai_response = await ai_client.get_career_advice(HARDCODED_USER_PROFILE, request.message)
-        
-        # Save AI message
-        ai_message = await repository.create_message(
-            conversation_id=conversation_id,
-            role="assistant",
-            content=ai_response.get("response", "Sorry, I couldn't generate a response.")
+        return MessageResponse(
+            success=True,
+            message=MessageBase.model_validate(user_message)
         )
-        
-        await repository.db.commit()
-        
-        return MessageResponse.model_validate(ai_message)
         
     except HTTPException:
         raise
     except Exception as e:
-        await repository.db.rollback()
         raise HTTPException(status_code=500, detail=f"Error processing message: {str(e)}")

@@ -3,11 +3,11 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 
-class MessageRequest(BaseModel):
+class CreateMessageRequest(BaseModel):
     message: str
     conversation_id: Optional[UUID] = None
 
-class MessageResponse(BaseModel):
+class MessageBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
     id: UUID
@@ -16,10 +16,12 @@ class MessageResponse(BaseModel):
     created_at: datetime
     conversation_id: UUID
 
-class ConversationResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    
-    id: UUID
-    title: str
-    created_at: datetime
-    messages: List[MessageResponse]
+
+class MessageListResponse(BaseModel):
+    success: bool
+    messages: List[MessageBase]
+
+class MessageResponse(BaseModel):
+    success: bool
+    message: MessageBase
+

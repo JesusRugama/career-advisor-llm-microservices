@@ -15,7 +15,7 @@ class ConversationRepository:
     def __init__(self, db: AsyncSession = Depends(get_db)):
         self.db = db
     
-    async def get_conversations_by_user_id(self, user_id: UUID) -> List[Conversation]:
+    async def get_conversations(self, user_id: UUID) -> List[Conversation]:
         """Get all conversations for a specific user."""
         result = await self.db.scalars(
             select(Conversation)
@@ -24,11 +24,21 @@ class ConversationRepository:
         )
         return list(result)
     
-    async def get_conversation_by_id(self, conversation_id: UUID, user_id: UUID) -> Conversation | None:
-        """Get a specific conversation by ID and user ID."""
-        result = await self.db.execute(
-            select(Conversation)
-            .where(Conversation.id == conversation_id)
-            .where(Conversation.user_id == user_id)
-        )
-        return result.scalars().first()
+    # async def get_conversation_by_id(self, conversation_id: UUID, user_id: UUID) -> Conversation | None:
+    #     """Get a specific conversation by ID and user ID."""
+    #     result = await self.db.execute(
+    #         select(Conversation)
+    #         .where(Conversation.id == conversation_id)
+    #         .where(Conversation.user_id == user_id)
+    #     )
+    #     return result.scalars().first()
+    #
+    # async def create_conversation(self, user_id: UUID, title: str) -> Conversation:
+    #     """Create a new conversation for a user."""
+    #     conversation = Conversation(
+    #         user_id=user_id,
+    #         title=title
+    #     )
+    #     self.db.add(conversation)
+    #     await self.db.flush()  # Get the ID without committing
+    #     return conversation

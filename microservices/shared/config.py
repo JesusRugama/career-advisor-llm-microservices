@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     
     # Database Configuration
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor"
+
+    feign_client_url: str = "http://localhost:8000"
+    feign_client_timeout: int = 10
     
     # XAI API Configuration
     xai_api_key: str = "test-key-not-used"  # Default for testing

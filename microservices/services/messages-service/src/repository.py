@@ -10,7 +10,6 @@ from fastapi import Depends
 
 from database import get_db
 from models import Message
-from domains.conversations.models import Conversation
 
 class MessageRepository:
     def __init__(self, db: AsyncSession = Depends(get_db)):
@@ -35,20 +34,3 @@ class MessageRepository:
         self.db.add(message)
         await self.db.flush()  # Get the ID without committing
         return message
-    
-    async def get_conversation_with_messages(self, conversation_id: UUID, user_id: UUID) -> List[Message]:
-        """Get conversation and its messages."""
-        # Get conversation
-        # conv_result = await self.db.execute(
-        #     select(Conversation)
-        #     .where(Conversation.id == conversation_id)
-        #     .where(Conversation.user_id == user_id)
-        # )
-        # conversation = conv_result.scalars().first()
-        #
-        # if not conversation:
-        #     return None, []
-        
-        # Get messages
-        messages = await self.get_messages_by_conversation_id(conversation_id)
-        return messages
