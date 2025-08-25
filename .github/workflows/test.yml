@@ -1,4 +1,4 @@
-name: Run Tests
+name: Microservices Tests
 
 on:
   push:
@@ -7,8 +7,12 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  test:
+  test-microservices:
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        service: [prompts-service, conversations-service, users-service, messages-service, llm-service]
     
     services:
       postgres:
@@ -33,48 +37,9 @@ jobs:
       with:
         python-version: '3.10'
     
-    - name: Create virtual environment
-      run: |
-        python -m venv .venv
-        source .venv/bin/activate
-        echo "$PWD/.venv/bin" >> $GITHUB_PATH
-    
-    - name: Install dependencies
-      run: |
-        source .venv/bin/activate
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Copy user_profile
-      run: cp src/user_profile/user_profile_template.py src/user_profile/user_profile.py
-    
-    - name: Set up test database environment
-      env:
-        TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor_test
-      run: |
-        echo "TEST_DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor_test" >> $GITHUB_ENV
-    
-    - name: Wait for PostgreSQL
-      run: |
-        until pg_isready -h localhost -p 5432 -U postgres; do
-          echo "Waiting for PostgreSQL..."
-          sleep 2
-        done
-    
-    - name: Enable pgvector extension
-      run: |
-        PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d career_advisor_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
-    
-    - name: Run tests
-      env:
-        TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor_test
-      run: |
-        source .venv/bin/activate
-        make test
-    
-    - name: Run tests with coverage
-      env:
-        TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor_test
-      run: |
-        source .venv/bin/activate
-        make test-coverage
+    - name: Test microservice
+      uses: ./.github/actions/test-service
+      with:
+        service-name: ${{ matrix.service }}
+        python-version: '3.10'
+        test-database-url: postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor_test
