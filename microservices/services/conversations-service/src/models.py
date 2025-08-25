@@ -10,7 +10,7 @@ from base import BaseModel
 class Conversation(BaseModel):
     __tablename__ = "conversations"
     
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), nullable=False)
     title = Column(String(255), nullable=False)
     
     # Relationships
