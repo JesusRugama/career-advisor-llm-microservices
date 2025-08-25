@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: career-advisor-config
+  namespace: career-advisor
+data:
+  # Database Configuration
+  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres-service:5432/career_advisor"
+  
+  # Service URLs for inter-service communication
+  USERS_SERVICE_URL: "http://users-service:8000"
+  CONVERSATIONS_SERVICE_URL: "http://conversations-service:8000"
+  MESSAGES_SERVICE_URL: "http://messages-service:8000"
+  PROMPTS_SERVICE_URL: "http://prompts-service:8000"
+  LLM_SERVICE_URL: "http://llm-service:8000"
+  
+  # Feign Client Configuration
+  FEIGN_CLIENT_URL: "http://conversations-service:8000"
+  FEIGN_CLIENT_TIMEOUT: "10"
+  
+  # XAI API Configuration (placeholder)
+  XAI_API_KEY: "test-key-not-used"
+  XAI_BASE_URL: "https://api.x.ai/v1"
+  XAI_MODEL: "grok-beta"
+  
+  # Python Configuration
+  PYTHONDONTWRITEBYTECODE: "1"
+  PYTHONUNBUFFERED: "1"

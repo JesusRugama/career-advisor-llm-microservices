@@ -1,0 +1,61 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: career-advisor-ingress
+  namespace: career-advisor
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: career-advisor.local
+    http:
+      paths:
+      # Users Service - /api/users/*
+      - path: /api/users(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: users-service
+            port:
+              number: 8000
+      
+      # Conversations Service - /api/users/{user_id}/conversations
+      - path: /api/users/([^/]+)/conversations(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: conversations-service
+            port:
+              number: 8000
+      
+      # Messages Service - /api/users/{user_id}/conversations/{conversation_id}/messages
+      - path: /api/users/([^/]+)/conversations/([^/]+)/messages(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: messages-service
+            port:
+              number: 8000
+      
+      # Prompts Service - /api/prompts/*
+      - path: /api/prompts(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: prompts-service
+            port:
+              number: 8000
+      
+      # LLM Service - /api/ai/*
+      - path: /api/ai(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: llm-service
+            port:
+              number: 8000
