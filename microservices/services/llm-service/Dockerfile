@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app/microservices
 
 # Copy service-specific requirements
-COPY microservices/services/ai-service/requirements.txt .
+COPY microservices/services/llm-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install development dependencies
@@ -20,10 +20,10 @@ RUN pip install --no-cache-dir ipdb debugpy
 COPY microservices/shared ./shared
 
 # Copy service code to match local structure (build context is backend root)
-COPY microservices/services/ai-service ./services/ai-service
+COPY microservices/services/llm-service ./services/llm-service
 
 # Set working directory to the service source directory (matching local development)
-WORKDIR /app/microservices/services/ai-service/src
+WORKDIR /app/microservices/services/llm-service/src
 
 # Expose port for FastAPI
 EXPOSE 8000

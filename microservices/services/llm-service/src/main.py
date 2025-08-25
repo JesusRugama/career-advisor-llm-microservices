@@ -39,11 +39,11 @@ app.add_middleware(
 )
 
 # Include AI service router (existing code, no modifications)
-app.include_router(ai_service_router, prefix="/api", tags=["ai-service"])
+app.include_router(ai_service_router, prefix="/api", tags=["llm-service"])
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "ai-service"}
+    return {"status": "healthy", "service": "llm-service"}
 
 @app.get("/")
 async def root():

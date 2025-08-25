@@ -30,7 +30,7 @@ services:
       - conversations-service
       - messages-service
       - prompts-service
-      - ai-service
+      - llm-service
     restart: unless-stopped
 
   # Users Service
@@ -114,10 +114,10 @@ services:
     stdin_open: true
 
   # AI Service
-  ai-service:
+  llm-service:
     build:
       context: ../
-      dockerfile: microservices/services/ai-service/Dockerfile
+      dockerfile: microservices/services/llm-service/Dockerfile
     ports:
       - "8005:8000"
     environment:
@@ -126,7 +126,7 @@ services:
       - PYTHONDONTWRITEBYTECODE=1
       - PYTHONUNBUFFERED=1
     volumes:
-      - ./services/ai-service/src:/app/microservices/services/ai-service/src
+      - ./services/llm-service/src:/app/microservices/services/llm-service/src
       - ./shared:/app/microservices/shared
     depends_on:
       postgres:
