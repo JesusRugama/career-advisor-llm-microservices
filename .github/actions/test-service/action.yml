@@ -110,7 +110,7 @@ runs:
 
     - name: Upload coverage reports
       if: steps.check-service.outputs.exists == 'true'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-${{ inputs.service-name }}
         path: microservices/services/${{ inputs.service-name }}/coverage.xml
