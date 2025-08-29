@@ -26,7 +26,46 @@ minikube addons enable ingress
 
 ## Quick Start
 
-### Option 1: Using Minikube
+### 🔥 Development Mode with Skaffold (Recommended for Development)
+
+For **fast development iteration** with hot reloading:
+
+```bash
+# 1. Install Skaffold (if not already installed)
+brew install skaffold
+
+# 2. Start your Kubernetes cluster
+minikube start
+# OR
+kind create cluster --name career-advisor
+
+# 3. Start development environment with hot reloading
+chmod +x dev.sh
+./dev.sh
+
+# 4. Your services will be available at:
+#    - Users Service: http://localhost:8001
+#    - Conversations Service: http://localhost:8002
+#    - Messages Service: http://localhost:8003
+#    - Prompts Service: http://localhost:8004
+#    - LLM Service: http://localhost:8005
+#    - PostgreSQL: localhost:5432
+
+# 5. Make code changes - they sync automatically!
+# No need to rebuild images for Python code changes
+
+# 6. Test your changes
+curl http://localhost:8004/prompts
+```
+
+**Benefits of Skaffold Development Mode:**
+- ⚡ **Instant code sync** - Python changes appear immediately
+- 🔄 **Auto port-forwarding** - all services accessible locally
+- 🏗️ **Smart rebuilds** - only rebuilds when Dockerfile changes
+- 👀 **File watching** - monitors your code for changes
+- 🚀 **No manual image builds** - handles everything automatically
+
+### Option 1: Using Minikube (Production-like Deployment)
 
 ```bash
 # 1. Start minikube cluster
@@ -47,7 +86,7 @@ echo "$(minikube ip) career-advisor.local" | sudo tee -a /etc/hosts
 curl http://career-advisor.local/api/prompts
 ```
 
-### Option 2: Using Kind
+### Option 2: Using Kind (Production-like Deployment)
 
 ```bash
 # 1. Create kind cluster
