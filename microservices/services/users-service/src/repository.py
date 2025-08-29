@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../shared'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select

@@ -1,3 +1,10 @@
+import sys
+import os
+# Add shared directory to path
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
+# Add current directory to path for local imports
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy import pool
@@ -13,7 +20,7 @@ TEST_DATABASE_URL = os.getenv(
 )
 
 engine = create_async_engine(
-    TEST_DATABASE_URL, 
+    TEST_DATABASE_URL,
     echo=True,  # echo for debugging
     poolclass=pool.NullPool,  # Disable connection pooling to avoid conflicts
     future=True

@@ -1,0 +1,117 @@
+name: 'Test Microservice'
+description: 'Reusable action to test a specific microservice'
+
+inputs:
+  service-name:
+    description: 'Name of the service to test (e.g., prompts-service)'
+    required: true
+  python-version:
+    description: 'Python version to use'
+    required: false
+    default: '3.10'
+  test-database-url:
+    description: 'Test database URL'
+    required: false
+    default: 'postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor_test'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check if service exists
+      id: check-service
+      shell: bash
+      run: |
+        if [ -d "microservices/services/${{ inputs.service-name }}" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+          echo "✅ Service ${{ inputs.service-name }} found"
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+          echo "⚠️ Service ${{ inputs.service-name }} not found, skipping..."
+        fi
+
+    - name: Create virtual environment
+      if: steps.check-service.outputs.exists == 'true'
+      shell: bash
+      run: |
+        cd microservices/services/${{ inputs.service-name }}
+        echo "🔧 Setting up virtual environment for ${{ inputs.service-name }}"
+        python -m venv .venv
+        source .venv/bin/activate
+        echo "$PWD/.venv/bin" >> $GITHUB_PATH
+
+    - name: Install dependencies
+      if: steps.check-service.outputs.exists == 'true'
+      shell: bash
+      run: |
+        cd microservices/services/${{ inputs.service-name }}
+        source .venv/bin/activate
+        echo "📦 Installing dependencies for ${{ inputs.service-name }}"
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+          echo "✅ Dependencies installed from requirements.txt"
+        else
+          echo "⚠️ No requirements.txt found, skipping dependency installation"
+        fi
+
+    - name: Wait for PostgreSQL
+      if: steps.check-service.outputs.exists == 'true'
+      shell: bash
+      run: |
+        echo "🔄 Waiting for PostgreSQL to be ready..."
+        until pg_isready -h localhost -p 5432 -U postgres; do
+          echo "Waiting for PostgreSQL..."
+          sleep 2
+        done
+        echo "✅ PostgreSQL is ready"
+
+    - name: Enable pgvector extension
+      if: steps.check-service.outputs.exists == 'true'
+      shell: bash
+      run: |
+        echo "🔧 Enabling pgvector extension..."
+        PGPASSWORD=postgres psql -h localhost -p 5432 -U postgres -d career_advisor_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
+        echo "✅ pgvector extension enabled"
+
+    - name: Run service tests
+      if: steps.check-service.outputs.exists == 'true'
+      shell: bash
+      env:
+        TEST_DATABASE_URL: ${{ inputs.test-database-url }}
+      run: |
+        cd microservices/services/${{ inputs.service-name }}
+        source .venv/bin/activate
+        echo "🧪 Running tests for ${{ inputs.service-name }}"
+        
+        if [ -f "src/tests/test_integration.py" ] || [ -d "src/tests" ]; then
+          python -m pytest src/tests/ -v --tb=short
+          echo "✅ Tests completed for ${{ inputs.service-name }}"
+        else
+          echo "⚠️ No tests found for ${{ inputs.service-name }}, skipping..."
+        fi
+
+    - name: Run service tests with coverage
+      if: steps.check-service.outputs.exists == 'true'
+      shell: bash
+      env:
+        TEST_DATABASE_URL: ${{ inputs.test-database-url }}
+      run: |
+        cd microservices/services/${{ inputs.service-name }}
+        source .venv/bin/activate
+        echo "📊 Running coverage analysis for ${{ inputs.service-name }}"
+        
+        if [ -f "src/tests/test_integration.py" ] || [ -d "src/tests" ]; then
+          pip install coverage pytest-cov
+          python -m pytest src/tests/ --cov=src --cov-report=term-missing --cov-report=xml -v
+          echo "✅ Coverage analysis completed for ${{ inputs.service-name }}"
+        else
+          echo "⚠️ No tests found for ${{ inputs.service-name }}, skipping coverage..."
+        fi
+
+    - name: Upload coverage reports
+      if: steps.check-service.outputs.exists == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-${{ inputs.service-name }}
+        path: microservices/services/${{ inputs.service-name }}/coverage.xml
+        if-no-files-found: ignore

@@ -1,9 +1,10 @@
 FROM python:3.10-slim
 
-# Install development tools
+# Install development tools and PostgreSQL client
 RUN apt-get update && apt-get install -y \
     curl \
     vim \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Set up the directory structure to match local development
@@ -22,8 +23,11 @@ COPY microservices/shared ./shared
 # Copy service code to match local structure (build context is backend root)
 COPY microservices/services/conversations-service ./services/conversations-service
 
-# Set working directory to the service source directory (matching local development)
-WORKDIR /app/microservices/services/conversations-service/src
+# Make the shared startup script executable
+RUN chmod +x ./shared/start-service.sh
+
+# Set working directory to the service directory for migrations
+WORKDIR /app/microservices/services/conversations-service
 
 # Expose port for FastAPI
 EXPOSE 8000
@@ -31,4 +35,5 @@ EXPOSE 8000
 # Expose port for debugger
 EXPOSE 5678
 
-CMD ["fastapi", "dev", "main.py", "--host", "0.0.0.0", "--port", "8000"]
+# Run the shared startup script
+CMD ["sh", "/app/microservices/shared/start-service.sh"]
