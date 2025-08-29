@@ -8,13 +8,13 @@ sys.path.append(os.path.dirname(__file__))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from database import create_tables, close_engine
+from database import close_engine
 from router import router as ai_service_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""
-    await create_tables()  # Initialize database on startup
+    # Database migrations are handled by alembic upgrade head in startup script
     yield
     await close_engine()  # Properly close the database engine
 

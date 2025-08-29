@@ -57,8 +57,20 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
+    # Get configuration and override with environment variable if available
+    configuration = config.get_section(config.config_ini_section, {})
+    
+    # Use environment variable DATABASE_URL if available, otherwise fall back to alembic.ini
+    database_url = os.getenv("DATABASE_URL") or configuration.get("sqlalchemy.url")
+    
+    # Convert asyncpg URL to psycopg2 for sync operations
+    if database_url and "postgresql+asyncpg://" in database_url:
+        database_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
+    
+    configuration["sqlalchemy.url"] = database_url
+
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        configuration,
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )

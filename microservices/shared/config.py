@@ -1,3 +1,4 @@
+import os
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
@@ -5,7 +6,7 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
     
-    # Database Configuration - will be overridden by Kubernetes ConfigMap
+    # Database Configuration - will be overridden by environment variables
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/career_advisor"
 
     feign_client_url: str = "http://localhost:8000"
@@ -28,3 +29,7 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+
+# Debug: Print the actual database URL being used
+print(f"🔍 Database URL from settings: {settings.database_url}")
+print(f"🔍 DATABASE_URL env var: {os.getenv('DATABASE_URL', 'NOT SET')}")
