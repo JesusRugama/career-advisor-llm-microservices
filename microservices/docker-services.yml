@@ -46,6 +46,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ./services/users-service/src:/app/microservices/services/users-service/src
+      - ./services/users-service/migrations:/app/microservices/services/users-service/migrations
       - ./shared:/app/microservices/shared
     depends_on:
       postgres:
@@ -66,6 +67,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ./services/conversations-service/src:/app/microservices/services/conversations-service/src
+      - ./services/conversations-service/migrations:/app/microservices/services/conversations-service/migrations
       - ./shared:/app/microservices/shared
     depends_on:
       postgres:
@@ -86,6 +88,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ./services/messages-service/src:/app/microservices/services/messages-service/src
+      - ./services/messages-service/migrations:/app/microservices/services/messages-service/migrations
       - ./shared:/app/microservices/shared
     depends_on:
       postgres:
@@ -106,6 +109,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ./services/prompts-service/src:/app/microservices/services/prompts-service/src
+      - ./services/prompts-service/migrations:/app/microservices/services/prompts-service/migrations
       - ./shared:/app/microservices/shared
     depends_on:
       postgres:
@@ -127,6 +131,7 @@ services:
       - PYTHONUNBUFFERED=1
     volumes:
       - ./services/llm-service/src:/app/microservices/services/llm-service/src
+      - ./services/llm-service/migrations:/app/microservices/services/llm-service/migrations
       - ./shared:/app/microservices/shared
     depends_on:
       postgres:
