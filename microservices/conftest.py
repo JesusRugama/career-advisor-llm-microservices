@@ -2,7 +2,7 @@ import sys
 import os
 # Add shared directory to path
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
-# Add current directory to path for local imports
+# Add current directory to path for local imports (src directory)
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import pytest_asyncio
@@ -12,7 +12,6 @@ from httpx import AsyncClient, ASGITransport
 from alembic import command, config, context  # Import Alembic for programmatic runs
 from main import app  # Import your FastAPI app
 from database import Base, get_db  # Import your DB base and dependency
-import os
 
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL",
@@ -35,9 +34,12 @@ def run_migrations_sync(alembic_cfg):
         print(f"Migration error: {e}")
         raise
 
-# Helper to get Alembic config (adapt if multi-domain; e.g., loop over domain migration paths)
+# Helper to get Alembic config for prompts service
 def get_alembic_config():
-    alembic_cfg = config.Config("alembic.ini")  # Or path to your alembic.ini
+    # Path to alembic.ini in the prompts service root directory
+    # Go up from tests -> src -> prompts-service root
+    alembic_ini_path = os.path.join(os.path.dirname(__file__), "../../alembic.ini")
+    alembic_cfg = config.Config(alembic_ini_path)
     alembic_cfg.set_main_option("sqlalchemy.url", TEST_DATABASE_URL)
     return alembic_cfg
 
