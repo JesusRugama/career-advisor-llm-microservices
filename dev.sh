@@ -67,4 +67,4 @@ echo "💡 To stop: Press Ctrl+C"
 echo ""
 
 # Run Skaffold in development mode
-skaffold dev --profile=dev --port-forward
+skaffold dev --profile=dev --port-forward --cache-artifacts=false

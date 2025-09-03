@@ -13,6 +13,20 @@ spec:
       labels:
         app: prompts-service
     spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:15-alpine
+        command: ['sh', '-c']
+        args:
+        - |
+          until pg_isready -h postgres-service -p 5432 -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          echo "PostgreSQL is ready!"
+        env:
+        - name: PGPASSWORD
+          value: "postgres"
       containers:
       - name: prompts-service
         image: career-advisor/prompts-service:latest
