@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-service
+  namespace: career-advisor
+spec:
+  replicas: 1  # LLM service might be more resource intensive
+  selector:
+    matchLabels:
+      app: llm-service
+  template:
+    metadata:
+      labels:
+        app: llm-service
+    spec:
+      containers:
+      - name: llm-service
+        image: career-advisor/llm-service:latest
+        imagePullPolicy: Never  # For local development
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: career-advisor-config
+        env:
+        - name: XAI_API_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: career-advisor-config
+              key: XAI_API_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 45
+          periodSeconds: 15
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+  namespace: career-advisor
+spec:
+  selector:
+    app: llm-service
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
