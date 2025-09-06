@@ -42,7 +42,7 @@ class TestPromptsIntegration:
             assert title in titles
 
     @pytest.mark.asyncio
-    async def test_get_prompts_with_additional_data(self, client, db_session):
+    async def test_get_prompts_with_additional_prompts(self, client, db_session):
         """Test GET /api/prompts with additional prompts beyond seed data."""
         # Get baseline count from seed data
         initial_response = await client.get("/api/prompts")
@@ -63,18 +63,10 @@ class TestPromptsIntegration:
             category="skills",
             is_active=True
         )
-        prompt3 = Prompt(
-            id=uuid4(),
-            title="Test Inactive Prompt",
-            prompt_text="This should not appear",
-            category="test",
-            is_active=False
-        )
 
         # Add to database
         db_session.add(prompt1)
         db_session.add(prompt2)
-        db_session.add(prompt3)
         await db_session.flush()  # Use flush instead of commit to avoid transaction conflicts
 
         # Test the endpoint
@@ -99,7 +91,6 @@ class TestPromptsIntegration:
         titles = [p["title"] for p in data["prompts"]]
         assert "Test Career Guidance" in titles
         assert "Test Skill Development" in titles
-        assert "Test Inactive Prompt" not in titles
 
     @pytest.mark.asyncio
     async def test_get_prompts_only_active(self, client, db_session):
@@ -108,14 +99,7 @@ class TestPromptsIntegration:
         initial_response = await client.get("/api/prompts")
         initial_count = len(initial_response.json()["prompts"])
         
-        # Create mix of active and inactive prompts
-        active_prompt = Prompt(
-            id=uuid4(),
-            title="Test Active Prompt",
-            prompt_text="This should appear",
-            category="test",
-            is_active=True
-        )
+        # Insert an inactive prompt
         inactive_prompt = Prompt(
             id=uuid4(),
             title="Test Inactive Prompt",
@@ -124,7 +108,6 @@ class TestPromptsIntegration:
             is_active=False
         )
 
-        db_session.add(active_prompt)
         db_session.add(inactive_prompt)
         await db_session.flush()  # Use flush instead of commit to avoid transaction conflicts
 
@@ -133,19 +116,12 @@ class TestPromptsIntegration:
         assert response.status_code == 200
         data = response.json()
 
-        # Should have seed data + 1 new active prompt (inactive not included)
-        assert len(data["prompts"]) == initial_count + 1
+        # Should have the same number of prompts as before
+        assert len(data["prompts"]) == initial_count
         
-        # Verify our test active prompt is included
+        # Verify our inactive prompt is not included
         titles = [p["title"] for p in data["prompts"]]
-        assert "Test Active Prompt" in titles
         assert "Test Inactive Prompt" not in titles
-        
-        # Verify all returned prompts are active
-        for prompt in data["prompts"]:
-            # Note: We can't directly check is_active from API response
-            # but the endpoint should only return active prompts
-            assert prompt["title"] != "Test Inactive Prompt"
 
     @pytest.mark.asyncio
     async def test_get_prompts_http_methods(self, client):

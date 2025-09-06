@@ -1,100 +1,62 @@
 # Tiltfile for Career Advisor Development
 # This provides fast development with live reload for all microservices
 
-# Load Kubernetes YAML files
-k8s_yaml([
+# Define which services to enable (comment out services you don't want to run)
+services = [
+    # {'name': 'users-service', 'port': 8001},
+    # {'name': 'conversations-service', 'port': 8002},
+    # {'name': 'messages-service', 'port': 8003},
+    {'name': 'prompts-service', 'port': 8004},
+    # {'name': 'llm-service', 'port': 8005},
+]
+
+# Build list of k8s yaml files
+k8s_files = [
     'k8s/namespace.yaml',
     'k8s/configmap.yaml',
     'k8s/postgres.yaml',
-    'k8s/users-service.yaml',
-    'k8s/conversations-service.yaml',
-    'k8s/messages-service.yaml',
-    'k8s/prompts-service.yaml',
-    'k8s/llm-service.yaml',
-    'k8s/ingress.yaml'
-])
+]
 
-# Users Service
-docker_build(
-    'career-advisor/users-service',
-    context='.',
-    dockerfile='microservices/services/users-service/Dockerfile',
-    live_update=[
-        sync('microservices/services/users-service/src', '/app/microservices/services/users-service/src'),
-        sync('microservices/shared', '/app/microservices/shared'),
-        run('pkill -f "fastapi dev" || true', trigger=['microservices/services/users-service/src/**/*.py']),
-    ]
-)
+# Add service yaml files for enabled services
+for service in services:
+    k8s_files.append('k8s/{}.yaml'.format(service['name']))
 
-# Conversations Service
-docker_build(
-    'career-advisor/conversations-service',
-    context='.',
-    dockerfile='microservices/services/conversations-service/Dockerfile',
-    live_update=[
-        sync('microservices/services/conversations-service/src', '/app/microservices/services/conversations-service/src'),
-        sync('microservices/shared', '/app/microservices/shared'),
-        run('pkill -f "fastapi dev" || true', trigger=['microservices/services/conversations-service/src/**/*.py']),
-    ]
-)
+# Optionally add ingress if multiple services are enabled
+if len(services) > 1:
+    k8s_files.append('k8s/ingress.yaml')
 
-# Messages Service
-docker_build(
-    'career-advisor/messages-service',
-    context='.',
-    dockerfile='microservices/services/messages-service/Dockerfile',
-    live_update=[
-        sync('microservices/services/messages-service/src', '/app/microservices/services/messages-service/src'),
-        sync('microservices/shared', '/app/microservices/shared'),
-        run('pkill -f "fastapi dev" || true', trigger=['microservices/services/messages-service/src/**/*.py']),
-    ]
-)
+# Load Kubernetes YAML files
+k8s_yaml(k8s_files)
 
-# Prompts Service
-docker_build(
-    'career-advisor/prompts-service',
-    context='.',
-    dockerfile='microservices/services/prompts-service/Dockerfile',
-    live_update=[
-        sync('microservices/services/prompts-service/src', '/app/microservices/services/prompts-service/src'),
-        sync('microservices/shared', '/app/microservices/shared'),
-        run('pkill -f "fastapi dev" || true', trigger=['microservices/services/prompts-service/src/**/*.py']),
-    ]
-)
+# Build Docker images and configure k8s resources for enabled services
+for service in services:
+    service_name = service['name']
+    service_port = service['port']
+    
+    # Build Docker image with live reload
+    docker_build(
+        'career-advisor/{}'.format(service_name),
+        context='.',
+        dockerfile='microservices/services/{}/Dockerfile'.format(service_name),
+        live_update=[
+            sync('microservices/services/{}/src'.format(service_name), '/app/microservices/services/{}/src'.format(service_name)),
+            sync('microservices/shared', '/app/microservices/shared'),
+            run('pkill -f "fastapi dev" || true', trigger=['microservices/services/{}/src/**/*.py'.format(service_name)]),
+        ]
+    )
+    
+    # Configure k8s resource with port forwarding and dependencies
+    k8s_resource(service_name, port_forwards='{}:8000'.format(service_port))
+    k8s_resource(service_name, resource_deps=['postgres'])
 
-# LLM Service
-docker_build(
-    'career-advisor/llm-service',
-    context='.',
-    dockerfile='microservices/services/llm-service/Dockerfile',
-    live_update=[
-        sync('microservices/services/llm-service/src', '/app/microservices/services/llm-service/src'),
-        sync('microservices/shared', '/app/microservices/shared'),
-        run('pkill -f "fastapi dev" || true', trigger=['microservices/services/llm-service/src/**/*.py']),
-    ]
-)
-
-# Port forward all services for local access
-k8s_resource('users-service', port_forwards='8001:8000')
-k8s_resource('conversations-service', port_forwards='8002:8000')
-k8s_resource('messages-service', port_forwards='8003:8000')
-k8s_resource('prompts-service', port_forwards='8004:8000')
-k8s_resource('llm-service', port_forwards='8005:8000')
+# Port forward postgres
 k8s_resource('postgres', port_forwards='5432:5432')
 
-# Set resource dependencies - all services wait for postgres
-k8s_resource('users-service', resource_deps=['postgres'])
-k8s_resource('conversations-service', resource_deps=['postgres'])
-k8s_resource('messages-service', resource_deps=['postgres'])
-k8s_resource('prompts-service', resource_deps=['postgres'])
-k8s_resource('llm-service', resource_deps=['postgres'])
-
 print("🚀 Tilt is configured for Career Advisor development!")
-print("📋 All Services with Live Reload:")
-print("  • Users Service: http://localhost:8001")
-print("  • Conversations Service: http://localhost:8002")
-print("  • Messages Service: http://localhost:8003")
-print("  • Prompts Service: http://localhost:8004")
-print("  • LLM Service: http://localhost:8005")
+print("📋 Enabled Services with Live Reload:")
+for service in services:
+    service_name = service['name'].replace('-', ' ').title()
+    service_port = service['port']
+    print("  • {}: http://localhost:{}".format(service_name, service_port))
 print("  • PostgreSQL: localhost:5432")
-print("💡 File changes will sync instantly with live reload for all services!")
+print("💡 File changes will sync instantly with live reload for enabled services!")
