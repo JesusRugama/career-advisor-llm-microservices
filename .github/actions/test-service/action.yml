@@ -17,20 +17,7 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Check if service exists
-      id: check-service
-      shell: bash
-      run: |
-        if [ -d "microservices/services/${{ inputs.service-name }}" ]; then
-          echo "exists=true" >> $GITHUB_OUTPUT
-          echo "✅ Service ${{ inputs.service-name }} found"
-        else
-          echo "exists=false" >> $GITHUB_OUTPUT
-          echo "⚠️ Service ${{ inputs.service-name }} not found, skipping..."
-        fi
-
     - name: Create virtual environment
-      if: steps.check-service.outputs.exists == 'true'
       shell: bash
       run: |
         cd microservices/services/${{ inputs.service-name }}
@@ -40,7 +27,6 @@ runs:
         echo "$PWD/.venv/bin" >> $GITHUB_PATH
 
     - name: Install dependencies
-      if: steps.check-service.outputs.exists == 'true'
       shell: bash
       run: |
         cd microservices/services/${{ inputs.service-name }}
@@ -55,7 +41,6 @@ runs:
         fi
 
     - name: Wait for PostgreSQL
-      if: steps.check-service.outputs.exists == 'true'
       shell: bash
       run: |
         echo "🔄 Waiting for PostgreSQL to be ready..."
@@ -66,7 +51,6 @@ runs:
         echo "✅ PostgreSQL is ready"
 
     - name: Enable pgvector extension
-      if: steps.check-service.outputs.exists == 'true'
       shell: bash
       run: |
         echo "🔧 Enabling pgvector extension..."
@@ -74,7 +58,6 @@ runs:
         echo "✅ pgvector extension enabled"
 
     - name: Run service tests
-      if: steps.check-service.outputs.exists == 'true'
       shell: bash
       env:
         TEST_DATABASE_URL: ${{ inputs.test-database-url }}
@@ -91,7 +74,6 @@ runs:
         fi
 
     - name: Run service tests with coverage
-      if: steps.check-service.outputs.exists == 'true'
       shell: bash
       env:
         TEST_DATABASE_URL: ${{ inputs.test-database-url }}
@@ -109,7 +91,6 @@ runs:
         fi
 
     - name: Upload coverage reports
-      if: steps.check-service.outputs.exists == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: coverage-${{ inputs.service-name }}

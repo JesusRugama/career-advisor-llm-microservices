@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -9,7 +9,7 @@ from typing import List
 from fastapi import Depends
 
 from database import get_db
-from models import Message
+from models.messages import Message
 
 class MessageRepository:
     def __init__(self, db: AsyncSession = Depends(get_db)):

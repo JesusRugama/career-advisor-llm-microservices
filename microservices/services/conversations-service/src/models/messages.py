@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
 
 from sqlalchemy import Column, String, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -12,4 +12,3 @@ class Message(BaseModel):
     conversation_id = Column(UUID(as_uuid=True), nullable=False)  # No foreign key for microservices
     role = Column(String(50), nullable=False)  # user, assistant
     content = Column(Text, nullable=False)
-
