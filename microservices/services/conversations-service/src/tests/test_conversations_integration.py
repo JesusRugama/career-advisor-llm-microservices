@@ -1,5 +1,4 @@
 import pytest
-import pytest_asyncio
 from uuid import uuid4
 import sys
 import os
@@ -8,7 +7,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-from models import Conversation
+from models import Conversation, Message
 
 # Fixtures are automatically discovered from conftest.py
 # No need to import client, db_session - pytest will find them
@@ -183,3 +182,4 @@ class TestConversationsIntegration:
         # Test with invalid UUID format
         response = await client.get("/api/users/invalid-uuid/conversations")
         assert response.status_code == 422  # Validation Error
+
