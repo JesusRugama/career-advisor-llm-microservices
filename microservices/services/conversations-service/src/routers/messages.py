@@ -58,8 +58,11 @@ async def create_conversation_message(
             content=request.message
         )
         
-        # Commit the transaction
+        # Commit the transaction first
         await message_repository.db.commit()
+        
+        # Refresh the object to load all attributes after commit
+        await message_repository.db.refresh(user_message)
         
         return MessageResponse(
             success=True,
@@ -90,8 +93,12 @@ async def create_conversation_and_message(
             content=request.message
         )
         
-        # Commit the transaction
+        # Commit the transaction first
         await message_repository.db.commit()
+        
+        # Refresh objects to load all attributes after commit
+        await message_repository.db.refresh(message)
+        await conversation_repository.db.refresh(conversation)
         
         return MessageWithConversationResponse(
             success=True,
