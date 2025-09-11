@@ -1,7 +1,8 @@
 import sys
 import os
+
 # Add shared directory to path
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../shared"))
 # Add current directory to path for local imports
 sys.path.append(os.path.dirname(__file__))
 
@@ -11,6 +12,7 @@ from contextlib import asynccontextmanager
 from database import close_engine
 from router import router as prompts_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""
@@ -18,11 +20,8 @@ async def lifespan(app: FastAPI):
     yield
     await close_engine()  # Properly close the database engine
 
-app = FastAPI(
-    title="Prompts Service", 
-    version="1.0.0",
-    lifespan=lifespan
-)
+
+app = FastAPI(title="Prompts Service", version="1.0.0", lifespan=lifespan)
 
 # CORS middleware
 origins = [
@@ -41,9 +40,11 @@ app.add_middleware(
 # Include prompts router (existing code, no modifications)
 app.include_router(prompts_router, prefix="/api", tags=["prompts"])
 
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "prompts-service"}
+
 
 @app.get("/")
 async def root():

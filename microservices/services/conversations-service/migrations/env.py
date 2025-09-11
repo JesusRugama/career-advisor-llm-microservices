@@ -8,8 +8,8 @@ from sqlalchemy import pool
 from alembic import context
 
 # Add paths for microservices setup
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../shared"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
 # Import models for autogenerate support
 from models import *
@@ -32,6 +32,7 @@ target_metadata = Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -70,14 +71,14 @@ def run_migrations_online() -> None:
     """
     # Get configuration and override with environment variable if available
     configuration = config.get_section(config.config_ini_section, {})
-    
+
     # Use environment variable DATABASE_URL if available, otherwise fall back to alembic.ini
     database_url = os.getenv("DATABASE_URL") or configuration.get("sqlalchemy.url")
-    
+
     # Convert asyncpg URL to psycopg2 for sync operations
     if database_url and "postgresql+asyncpg://" in database_url:
         database_url = database_url.replace("postgresql+asyncpg://", "postgresql://")
-    
+
     configuration["sqlalchemy.url"] = database_url
 
     connectable = engine_from_config(
@@ -88,7 +89,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, version_table="alembic_version_conversations"
+            connection=connection,
+            target_metadata=target_metadata,
+            version_table="alembic_version_conversations",
         )
 
         with context.begin_transaction():

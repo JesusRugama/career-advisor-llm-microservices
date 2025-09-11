@@ -4,6 +4,7 @@ from schemas import PromptListResponse
 
 router = APIRouter()
 
+
 @router.get("/prompts", response_model=PromptListResponse)
 async def get_prompts(repository: PromptRepository = Depends()):
     """
@@ -11,9 +12,6 @@ async def get_prompts(repository: PromptRepository = Depends()):
     """
     try:
         prompts = await repository.get_active_prompts()
-        return PromptListResponse(
-            success=True,
-            prompts=prompts
-        )
+        return PromptListResponse(success=True, prompts=prompts)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

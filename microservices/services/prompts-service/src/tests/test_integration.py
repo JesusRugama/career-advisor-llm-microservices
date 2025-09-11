@@ -5,13 +5,14 @@ import sys
 import os
 
 # Add paths for microservices setup
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../../shared"))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from models import Prompt
 
 # Fixtures are automatically discovered from conftest.py
 # No need to import client, db_session - pytest will find them
+
 
 class TestPromptsIntegration:
     """Integration tests for the prompts domain using real database."""
@@ -20,24 +21,24 @@ class TestPromptsIntegration:
     async def test_get_prompts_with_seed_data(self, client):
         """Test GET /api/prompts with seed data from migrations."""
         response = await client.get("/api/prompts")
-        
+
         assert response.status_code == 200
         data = response.json()
 
         assert data["success"] is True
         assert len(data["prompts"]) == 6  # Should have 6 seed prompts
-        
+
         # Verify seed prompt titles are present
         titles = [p["title"] for p in data["prompts"]]
         expected_titles = [
             "Career Path Guidance",
-            "Skill Development", 
+            "Skill Development",
             "Leadership Transition",
             "Industry Trends",
             "Salary Negotiation",
-            "Work-Life Balance"
+            "Work-Life Balance",
         ]
-        
+
         for title in expected_titles:
             assert title in titles
 
@@ -47,21 +48,21 @@ class TestPromptsIntegration:
         # Get baseline count from seed data
         initial_response = await client.get("/api/prompts")
         initial_count = len(initial_response.json()["prompts"])
-        
+
         # Create additional test prompts with unique titles
         prompt1 = Prompt(
             id=uuid4(),
             title="Test Career Guidance",
             prompt_text="What are the best career paths for someone with my skills?",
             category="career",
-            is_active=True
+            is_active=True,
         )
         prompt2 = Prompt(
             id=uuid4(),
             title="Test Skill Development",
             prompt_text="What skills should I focus on developing next?",
             category="skills",
-            is_active=True
+            is_active=True,
         )
 
         # Add to database
@@ -98,14 +99,14 @@ class TestPromptsIntegration:
         # Get baseline count (all seed data should be active)
         initial_response = await client.get("/api/prompts")
         initial_count = len(initial_response.json()["prompts"])
-        
+
         # Insert an inactive prompt
         inactive_prompt = Prompt(
             id=uuid4(),
             title="Test Inactive Prompt",
             prompt_text="This should not appear",
             category="test",
-            is_active=False
+            is_active=False,
         )
 
         db_session.add(inactive_prompt)
@@ -118,7 +119,7 @@ class TestPromptsIntegration:
 
         # Should have the same number of prompts as before
         assert len(data["prompts"]) == initial_count
-        
+
         # Verify our inactive prompt is not included
         titles = [p["title"] for p in data["prompts"]]
         assert "Test Inactive Prompt" not in titles
@@ -147,7 +148,7 @@ class TestPromptsIntegration:
             title="Test Structure Validation Prompt",
             prompt_text="Test prompt text for validation",
             category="test",
-            is_active=True
+            is_active=True,
         )
 
         db_session.add(prompt)
@@ -164,7 +165,9 @@ class TestPromptsIntegration:
         assert "prompts" in data
         assert isinstance(data["success"], bool)
         assert isinstance(data["prompts"], list)
-        assert len(data["prompts"]) > 0  # Should have at least seed data + our test prompt
+        assert (
+            len(data["prompts"]) > 0
+        )  # Should have at least seed data + our test prompt
 
         # Test PromptBase structure - find our test prompt
         test_prompt = None
@@ -172,7 +175,7 @@ class TestPromptsIntegration:
             if prompt_data["title"] == "Test Structure Validation Prompt":
                 test_prompt = prompt_data
                 break
-        
+
         assert test_prompt is not None, "Test prompt not found in response"
         assert "id" in test_prompt
         assert "title" in test_prompt
@@ -182,4 +185,5 @@ class TestPromptsIntegration:
 
         # Validate UUID format
         import uuid
+
         uuid.UUID(test_prompt["id"])  # Should not raise exception

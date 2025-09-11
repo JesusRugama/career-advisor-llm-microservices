@@ -8,8 +8,8 @@ from sqlalchemy import pool
 from alembic import context
 
 # Add paths for microservices setup
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../shared'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '../src'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../shared"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -81,7 +81,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, version_table="alembic_version_llm"
+            connection=connection,
+            target_metadata=target_metadata,
+            version_table="alembic_version_llm",
         )
 
         with context.begin_transaction():

@@ -4,11 +4,12 @@ import sys
 import os
 
 # Add paths for microservices setup
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../../shared"))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 # Fixtures are automatically discovered from conftest.py
 # No need to import client, db_session - pytest will find them
+
 
 class TestUsersIntegration:
     """Placeholder integration tests for the users service."""

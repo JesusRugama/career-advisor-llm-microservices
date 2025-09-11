@@ -1,52 +1,35 @@
 # Career Advisor Backend Makefile
-.PHONY: help test test-verbose test-coverage install migrate migrate-upgrade migrate-downgrade run dev clean lint format
+.PHONY: help test test-verbose test-coverage test-all install install-all migrate migrate-up migrate-down migrate-status migrate-all-up migrate-all-down run dev clean lint format
+
+# Service names
+SERVICES := conversations-service prompts-service users-service
 
 # Default target
 help:
 	@echo "Available commands:"
-	@echo "  test           - Run all tests"
-	@echo "  test-verbose   - Run all tests with verbose output"
-	@echo "  test-coverage  - Run tests with coverage report"
-	@echo "  install        - Install dependencies"
-	@echo "  migrate        - Create new migration"
-	@echo "  migrate-up     - Run migrations (upgrade)"
-	@echo "  migrate-down   - Rollback migrations (downgrade)"
-	@echo "  run            - Start the FastAPI server"
-	@echo "  dev            - Start server in development mode"
-	@echo "  clean          - Clean cache and temporary files"
-	@echo "  lint           - Run code linting"
-	@echo "  format         - Format code with black"
+	@echo ""
+	@echo "  test-all               - Run tests for all services"
+	@echo "  dev                   - Start server in development mode (Tilt)"
+	@echo "  clean                 - Clean cache and temporary files"
+	@echo "  lint                  - Run code linting"
+	@echo "  format                - Format code with black"
+	@echo ""
 
-# Testing commands
-test:
-	.venv/bin/python -m pytest src/
-
-test-verbose:
-	.venv/bin/python -m pytest src/ -v
-
-test-coverage:
-	.venv/bin/python -m pytest src/ --cov=src --cov-report=term-missing
-
-# Development setup
-install:
-	.venv/bin/python -m pip install -r requirements.txt
-
-# Database commands
-migrate:
-	.venv/bin/python -m alembic revision --autogenerate -m "$(msg)"
-
-migrate-up:
-	.venv/bin/python -m alembic upgrade head
-
-migrate-down:
-	.venv/bin/python -m alembic downgrade -1
-
-# Server commands
-run:
-	.venv/bin/python -m uvicorn src.main:app --host 0.0.0.0 --port 8000
+test-all:
+	@echo "Running tests for all services..."
+	@for service in $(SERVICES); do \
+		if [ -d "microservices/services/$$service" ]; then \
+			echo "Testing $$service..."; \
+			cd microservices/services/$$service && .venv/bin/python -m pytest src/tests/ || exit 1; \
+			cd - > /dev/null; \
+		else \
+			echo "Warning: Service $$service not found, skipping..."; \
+		fi; \
+	done
+	@echo "All tests completed successfully!"
 
 dev:
-	.venv/bin/python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+	tilt up
 
 # Code quality
 clean:
@@ -55,7 +38,7 @@ clean:
 	find . -type d -name ".pytest_cache" -exec rm -rf {} +
 
 lint:
-	.venv/bin/python -m flake8 src/
+	.venv/bin/python -m flake8 microservices/
 
 format:
-	.venv/bin/python -m black src/
+	.venv/bin/python -m black microservices/

@@ -4,13 +4,14 @@ import sys
 import os
 
 # Add paths for microservices setup
-sys.path.append(os.path.join(os.path.dirname(__file__), '../../../../shared'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../../../../shared"))
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from models import Conversation, Message
 
 # Fixtures are automatically discovered from conftest.py
 # No need to import client, db_session - pytest will find them
+
 
 class TestGetConversations:
     """Integration tests for the conversations service using real database."""
@@ -20,7 +21,7 @@ class TestGetConversations:
         """Test GET /users/{user_id}/conversations with no conversations."""
         user_id = uuid4()
         response = await client.get(f"/api/users/{user_id}/conversations")
-        
+
         assert response.status_code == 200
         data = response.json()
 
@@ -32,23 +33,17 @@ class TestGetConversations:
         """Test GET /users/{user_id}/conversations with existing conversations."""
         user_id = uuid4()
         other_user_id = uuid4()
-        
+
         # Create test conversations for the user
         conversation1 = Conversation(
-            id=uuid4(),
-            user_id=user_id,
-            title="Career Planning Discussion"
+            id=uuid4(), user_id=user_id, title="Career Planning Discussion"
         )
         conversation2 = Conversation(
-            id=uuid4(),
-            user_id=user_id,
-            title="Skills Development Chat"
+            id=uuid4(), user_id=user_id, title="Skills Development Chat"
         )
         # Create conversation for different user (should not appear in results)
         conversation3 = Conversation(
-            id=uuid4(),
-            user_id=other_user_id,
-            title="Other User's Conversation"
+            id=uuid4(), user_id=other_user_id, title="Other User's Conversation"
         )
 
         # Add to database
@@ -86,17 +81,13 @@ class TestGetConversations:
         """Test that users only see their own conversations."""
         user1_id = uuid4()
         user2_id = uuid4()
-        
+
         # Create conversations for different users
         conversation1 = Conversation(
-            id=uuid4(),
-            user_id=user1_id,
-            title="User 1 Conversation"
+            id=uuid4(), user_id=user1_id, title="User 1 Conversation"
         )
         conversation2 = Conversation(
-            id=uuid4(),
-            user_id=user2_id,
-            title="User 2 Conversation"
+            id=uuid4(), user_id=user2_id, title="User 2 Conversation"
         )
 
         db_session.add(conversation1)
@@ -121,7 +112,7 @@ class TestGetConversations:
     async def test_get_conversations_http_methods(self, client):
         """Test that only GET method is allowed."""
         user_id = uuid4()
-        
+
         # Test POST method (should fail)
         response = await client.post(f"/api/users/{user_id}/conversations")
         assert response.status_code == 405  # Method Not Allowed
@@ -138,12 +129,10 @@ class TestGetConversations:
     async def test_get_conversations_response_structure(self, client, db_session):
         """Test that response matches expected Pydantic schema structure."""
         user_id = uuid4()
-        
+
         # Create a test conversation
         conversation = Conversation(
-            id=uuid4(),
-            user_id=user_id,
-            title="Test Structure Validation"
+            id=uuid4(), user_id=user_id, title="Test Structure Validation"
         )
 
         db_session.add(conversation)
@@ -173,6 +162,7 @@ class TestGetConversations:
 
         # Validate UUID format
         import uuid
+
         uuid.UUID(conversation_data["id"])  # Should not raise exception
         uuid.UUID(conversation_data["user_id"])  # Should not raise exception
 
@@ -182,4 +172,3 @@ class TestGetConversations:
         # Test with invalid UUID format
         response = await client.get("/api/users/invalid-uuid/conversations")
         assert response.status_code == 422  # Validation Error
-

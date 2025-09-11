@@ -2,7 +2,7 @@ from .conversations import (
     ConversationBase,
     ConversationListResponse,
     CreateConversationRequest,
-    ConversationResponse
+    ConversationResponse,
 )
 from .messages import (
     MessageBase,
@@ -10,7 +10,7 @@ from .messages import (
     CreateMessageRequest,
     CreateMessageWithConversationRequest,
     MessageResponse,
-    MessageWithConversationResponse
+    MessageWithConversationResponse,
 )
 
 __all__ = [
@@ -23,5 +23,5 @@ __all__ = [
     "CreateMessageRequest",
     "CreateMessageWithConversationRequest",
     "MessageResponse",
-    "MessageWithConversationResponse"
+    "MessageWithConversationResponse",
 ]
