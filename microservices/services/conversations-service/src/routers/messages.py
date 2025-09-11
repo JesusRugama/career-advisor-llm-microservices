@@ -54,7 +54,7 @@ async def create_conversation_message(
         # Save user message
         user_message = await message_repository.create_message(
             conversation_id=conversation_id,
-            role="user",
+            is_human=True,
             content=request.message
         )
         
@@ -86,7 +86,7 @@ async def create_conversation_and_message(
         # Create the message
         message = await message_repository.create_message(
             conversation_id=conversation.id,
-            role="user",
+            is_human=True,
             content=request.message
         )
         

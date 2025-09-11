@@ -37,7 +37,7 @@ class TestCreateConversationMessage:
         
         # Validate message data
         message = data["message"]
-        assert message["role"] == "user"
+        assert message["is_human"] == True
         assert message["content"] == message_content
         assert "id" in message
         assert "created_at" in message
@@ -75,6 +75,7 @@ class TestCreateConversationMessage:
         data = response.json()
         assert data["success"] is True
         assert data["message"]["content"] == ""
+        assert data["message"]["is_human"] == True
 
     @pytest.mark.asyncio
     async def test_create_conversation_and_message_missing_message_field(self, client):
@@ -181,7 +182,7 @@ class TestCreateConversationMessage:
         
         # Test MessageBase structure
         message = data["message"]
-        message_fields = ["id", "role", "content", "created_at", "conversation_id"]
+        message_fields = ["id", "is_human", "content", "created_at", "conversation_id"]
         for field in message_fields:
             assert field in message
         

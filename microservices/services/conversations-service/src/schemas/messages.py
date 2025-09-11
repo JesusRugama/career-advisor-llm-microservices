@@ -6,7 +6,7 @@ from datetime import datetime
 class MessageBase(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: UUID
-    role: str
+    is_human: bool
     content: str
     created_at: datetime
     conversation_id: UUID

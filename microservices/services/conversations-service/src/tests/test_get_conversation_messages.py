@@ -57,19 +57,19 @@ class TestGetConversationMessages:
         message1 = Message(
             id=uuid4(),
             conversation_id=conversation_id,
-            role="user",
+            is_human=True,
             content="Hello, I need career advice"
         )
         message2 = Message(
             id=uuid4(),
             conversation_id=conversation_id,
-            role="assistant",
+            is_human=False,
             content="I'd be happy to help with your career questions!"
         )
         message3 = Message(
             id=uuid4(),
             conversation_id=conversation_id,
-            role="user",
+            is_human=True,
             content="What skills should I focus on for software engineering?"
         )
 
@@ -89,18 +89,18 @@ class TestGetConversationMessages:
         messages = data["messages"]
         for message in messages:
             assert "id" in message
-            assert "role" in message
+            assert "is_human" in message
             assert "content" in message
             assert "created_at" in message
             assert "conversation_id" in message
             assert message["conversation_id"] == str(conversation_id)
 
         # Check specific message content
-        assert messages[0]["role"] == "user"
+        assert messages[0]["is_human"] == True
         assert messages[0]["content"] == "Hello, I need career advice"
-        assert messages[1]["role"] == "assistant"
+        assert messages[1]["is_human"] == False
         assert messages[1]["content"] == "I'd be happy to help with your career questions!"
-        assert messages[2]["role"] == "user"
+        assert messages[2]["is_human"] == True
         assert messages[2]["content"] == "What skills should I focus on for software engineering?"
 
     @pytest.mark.asyncio
@@ -164,19 +164,19 @@ class TestGetConversationMessages:
         message1_conv1 = Message(
             id=uuid4(),
             conversation_id=conversation1_id,
-            role="user",
+            is_human=True,
             content="Message in conversation 1"
         )
         message2_conv1 = Message(
             id=uuid4(),
             conversation_id=conversation1_id,
-            role="assistant",
+            is_human=False,
             content="Response in conversation 1"
         )
         message1_conv2 = Message(
             id=uuid4(),
             conversation_id=conversation2_id,
-            role="user",
+            is_human=True,
             content="Message in conversation 2"
         )
 
@@ -223,7 +223,7 @@ class TestGetConversationMessages:
         message = Message(
             id=uuid4(),
             conversation_id=conversation_id,
-            role="user",
+            is_human=True,
             content="Test message for schema validation"
         )
 
@@ -247,11 +247,11 @@ class TestGetConversationMessages:
         # Test MessageBase structure
         message_data = data["messages"][0]
         assert "id" in message_data
-        assert "role" in message_data
+        assert "is_human" in message_data
         assert "content" in message_data
         assert "created_at" in message_data
         assert "conversation_id" in message_data
-        assert message_data["role"] == "user"
+        assert message_data["is_human"] == True
         assert message_data["content"] == "Test message for schema validation"
         assert message_data["conversation_id"] == str(conversation_id)
 

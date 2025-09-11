@@ -24,11 +24,11 @@ class MessageRepository:
         )
         return result.scalars().all()
     
-    async def create_message(self, conversation_id: UUID, role: str, content: str) -> Message:
+    async def create_message(self, conversation_id: UUID, is_human: bool, content: str) -> Message:
         """Create a new message."""
         message = Message(
             conversation_id=conversation_id,
-            role=role,
+            is_human=is_human,
             content=content
         )
         self.db.add(message)
