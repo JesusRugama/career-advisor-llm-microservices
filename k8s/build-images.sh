@@ -17,14 +17,8 @@ docker build -t career-advisor/users-service:latest -f microservices/services/us
 echo "📦 Building conversations-service..."
 docker build -t career-advisor/conversations-service:latest -f microservices/services/conversations-service/Dockerfile .
 
-echo "📦 Building messages-service..."
-docker build -t career-advisor/messages-service:latest -f microservices/services/messages-service/Dockerfile .
-
 echo "📦 Building prompts-service..."
 docker build -t career-advisor/prompts-service:latest -f microservices/services/prompts-service/Dockerfile .
-
-echo "📦 Building llm-service..."
-docker build -t career-advisor/llm-service:latest -f microservices/services/llm-service/Dockerfile .
 
 echo "✅ All Docker images built successfully!"
 echo ""

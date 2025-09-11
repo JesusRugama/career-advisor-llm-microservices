@@ -22,7 +22,7 @@ This document outlines recommendations for improving AI assistant effectiveness 
 **Recommended**: Terraform MCP Server
 - **Benefits**: Infrastructure state inspection, plan validation, resource management
 - **Current Setup**: Manual Terraform commands in `infrastructure/` directory
-- **Focus**: Kubernetes-only deployment (no EC2)
+- **Focus**: Production EKS deployment strategy
 
 ### Project Management
 **Recommended**: Trello or GitHub Issues MCP Server
@@ -97,7 +97,7 @@ This document outlines recommendations for improving AI assistant effectiveness 
 ### Best Practices
 - **Database Operations**: Use `psql` commands until MCP servers are available
 - **Service Development**: Follow FastAPI + SQLAlchemy patterns established in existing services
-- **Infrastructure**: Focus on Kubernetes-only deployment, avoid EC2 references
+- **Infrastructure**: Production-only EKS deployment strategy
 - **Testing**: Maintain test coverage for all new features and services
 
 ## Troubleshooting Common Issues

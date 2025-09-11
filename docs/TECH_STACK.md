@@ -93,13 +93,12 @@
   - Live reload for microservices
   - Kubernetes integration
   - Fast development iteration
-- **Docker Compose** - Local service orchestration (alternative)
 
 ### Cloud Infrastructure (Production)
 - **AWS EKS with Fargate** - Managed Kubernetes service
   - Serverless containers
   - Automatic scaling
-  - No EC2 management required
+  - Serverless container management
 - **AWS RDS** - Managed PostgreSQL database
   - Automated backups
   - High availability

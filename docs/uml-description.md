@@ -68,7 +68,7 @@
 5. **Result**: Users get immediate streaming AI responses after sending messages, with enrichment/embeddings handled asynchronously for performance.
 
 **Deployment**:
-- Dev: EC2+docker-compose+RDS (PostgreSQL).
+- Dev: Kubernetes (Tilt + Colima) + PostgreSQL pod.
 - Prod: EKS+Fargate+RDS+S3+CloudFront+API Gateway.
 - Secrets: AWS Secrets Manager for Grok API key, DB creds.
 

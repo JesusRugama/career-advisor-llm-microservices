@@ -5,9 +5,7 @@
 services = [
     # {'name': 'users-service', 'port': 8001},
     {'name': 'conversations-service', 'port': 8002},
-    # {'name': 'messages-service', 'port': 8003},
     {'name': 'prompts-service', 'port': 8004},
-    # {'name': 'llm-service', 'port': 8005},
 ]
 
 # Build list of k8s yaml files
