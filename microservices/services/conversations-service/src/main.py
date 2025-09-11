@@ -9,10 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from database import close_engine
-from routers.conversation import router as conversations_router
-from routers.messages import router as messages_router
-# Import models to register them with SQLAlchemy Base
-from models import Conversation, Message
+from routers import conversations_router, messages_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -22,7 +19,7 @@ async def lifespan(app: FastAPI):
     await close_engine()  # Properly close the database engine
 
 app = FastAPI(
-    title="Conversations Service", 
+    title="Conversations Service",
     version="1.0.0",
     lifespan=lifespan
 )

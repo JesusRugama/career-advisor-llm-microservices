@@ -32,3 +32,13 @@ class ConversationRepository:
             .where(Conversation.user_id == user_id)
         )
         return result.scalars().first() is not None
+    
+    async def create_conversation(self, user_id: UUID, title: str = "New Conversation") -> Conversation:
+        """Create a new conversation."""
+        conversation = Conversation(
+            user_id=user_id,
+            title=title
+        )
+        self.db.add(conversation)
+        await self.db.flush()  # Get the ID without committing
+        return conversation

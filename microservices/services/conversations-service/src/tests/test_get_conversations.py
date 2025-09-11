@@ -12,7 +12,7 @@ from models import Conversation, Message
 # Fixtures are automatically discovered from conftest.py
 # No need to import client, db_session - pytest will find them
 
-class TestConversationsIntegration:
+class TestGetConversations:
     """Integration tests for the conversations service using real database."""
 
     @pytest.mark.asyncio

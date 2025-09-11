@@ -13,7 +13,7 @@ from models import Conversation, Message
 # No need to import client, db_session - pytest will find them
 
 
-class TestMessagesIntegration:
+class TestGetConversationMessages:
     """Integration tests for the messages endpoints in conversations service."""
 
     @pytest.mark.asyncio

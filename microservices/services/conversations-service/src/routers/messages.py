@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
 
-from schemas import MessageListResponse, MessageBase, CreateMessageRequest, MessageResponse
+from schemas import MessageListResponse, MessageBase, CreateMessageRequest, MessageResponse, MessageWithConversationResponse, ConversationBase
 from repositories import ConversationRepository, MessageRepository
 
 router = APIRouter()
@@ -67,4 +67,32 @@ async def create_conversation_message(
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing message: {str(e)}")
+
+@router.post("/users/{user_id}/messages")
+async def create_conversation_and_message(
+    user_id: UUID,
+    request: CreateMessageRequest,
+    message_repository: MessageRepository = Depends(),
+    conversation_repository: ConversationRepository = Depends()
+) -> MessageWithConversationResponse:
+    """Create a new conversation with the first message"""
+    try:
+        # Always create new conversation
+        conversation = await conversation_repository.create_conversation(user_id, "New Conversation")
+        
+        # Create the message
+        message = await message_repository.create_message(
+            conversation_id=conversation.id,
+            role="user",
+            content=request.message
+        )
+        
+        return MessageWithConversationResponse(
+            success=True,
+            message=MessageBase.model_validate(message),
+            conversation=ConversationBase.model_validate(conversation).model_dump()
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error creating message: {str(e)}")
         

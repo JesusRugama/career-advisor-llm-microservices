@@ -8,16 +8,20 @@ from .messages import (
     MessageBase,
     MessageListResponse,
     CreateMessageRequest,
-    MessageResponse
+    CreateMessageWithConversationRequest,
+    MessageResponse,
+    MessageWithConversationResponse
 )
 
 __all__ = [
     "ConversationBase",
-    "ConversationListResponse", 
+    "ConversationListResponse",
     "CreateConversationRequest",
     "ConversationResponse",
     "MessageBase",
     "MessageListResponse",
-    "CreateMessageRequest", 
-    "MessageResponse"
+    "CreateMessageRequest",
+    "CreateMessageWithConversationRequest",
+    "MessageResponse",
+    "MessageWithConversationResponse"
 ]

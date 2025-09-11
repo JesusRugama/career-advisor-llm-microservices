@@ -34,3 +34,4 @@ class MessageRepository:
         self.db.add(message)
         await self.db.flush()  # Get the ID without committing
         return message
+    
