@@ -58,6 +58,9 @@ async def create_conversation_message(
             content=request.message
         )
         
+        # Commit the transaction
+        await message_repository.db.commit()
+        
         return MessageResponse(
             success=True,
             message=MessageBase.model_validate(user_message)
@@ -86,6 +89,9 @@ async def create_conversation_and_message(
             role="user",
             content=request.message
         )
+        
+        # Commit the transaction
+        await message_repository.db.commit()
         
         return MessageWithConversationResponse(
             success=True,
