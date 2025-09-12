@@ -1,27 +1,35 @@
 from fastapi import APIRouter, Depends, HTTPException
+from uuid import UUID
 
-from schemas import UserListResponse, UserResponse, UserBase
+from schemas import UserProfileResponse, UserProfileBase
 from repository import UserRepository
 
 router = APIRouter()
 
-
-@router.get("/users")
-async def get_users(repository: UserRepository = Depends()) -> UserListResponse:
-    """Get all users from the database."""
+@router.get("/users/{user_id}/profile")
+async def get_user_profile(
+    user_id: UUID, repository: UserRepository = Depends()
+) -> UserProfileResponse:
+    """Get user profile by user ID."""
     try:
-        users = await repository.get_all_users()
+        # First check if user exists
+        user = await repository.get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
 
-        user_responses = [UserBase.model_validate(user) for user in users]
+        # Get user profile
+        profile = await repository.get_user_profile(user_id)
+        if not profile:
+            return UserProfileResponse(
+                success=True, 
+                profile=None, 
+                message="User profile not found"
+            )
 
-        return UserListResponse(success=True, users=user_responses)
+        profile_data = UserProfileBase.model_validate(profile)
+        return UserProfileResponse(success=True, profile=profile_data)
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/users")
-async def create_user(repository: UserRepository = Depends()) -> UserResponse:
-    """Create a new user."""
-    return UserResponse(
-        success=True, message="User creation endpoint - implementation needed"
-    )
