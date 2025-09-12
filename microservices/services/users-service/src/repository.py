@@ -10,26 +10,21 @@ from typing import List
 from fastapi import Depends
 
 from database import get_db
-from models import User
+from models import User, UserProfile
 
 
 class UserRepository:
     def __init__(self, db: AsyncSession = Depends(get_db)):
         self.db = db
 
-    async def get_all_users(self) -> List[User]:
-        """Get all users."""
-        result = await self.db.scalars(select(User))
-        return list(result)
-
     async def get_user_by_id(self, user_id: UUID) -> User | None:
         """Get a user by ID."""
         result = await self.db.execute(select(User).where(User.id == user_id))
         return result.scalars().first()
 
-    async def create_user(self, name: str, email: str) -> User:
-        """Create a new user."""
-        user = User(name=name, email=email)
-        self.db.add(user)
-        await self.db.flush()  # Get the ID without committing
-        return user
+    async def get_user_profile(self, user_id: UUID) -> UserProfile | None:
+        """Get user profile by user ID."""
+        result = await self.db.execute(
+            select(UserProfile).where(UserProfile.user_id == user_id)
+        )
+        return result.scalars().first()

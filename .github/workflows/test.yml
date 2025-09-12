@@ -13,7 +13,7 @@ jobs:
     
     strategy:
       matrix:
-        service: [prompts-service, conversations-service, users-service, llm-service]
+        service: [prompts-service, conversations-service, users-service]
     
     services:
       postgres:

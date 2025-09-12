@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
+from typing import Optional, List, Any
 
 
 class UserBase(BaseModel):
@@ -10,11 +11,18 @@ class UserBase(BaseModel):
     email: str
 
 
-class UserResponse(BaseModel):
-    success: bool
-    message: str
+class UserProfileBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    user_id: UUID
+    years_experience: Optional[int] = None
+    skills: Optional[List[str]] = None
+    career_goals: Optional[str] = None
+    preferred_work_style: Optional[str] = None
 
 
-class UserListResponse(BaseModel):
+class UserProfileResponse(BaseModel):
     success: bool
-    users: list[UserBase]
+    profile: Optional[UserProfileBase] = None
+    message: Optional[str] = None
