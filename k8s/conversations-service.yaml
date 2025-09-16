@@ -4,7 +4,7 @@ metadata:
   name: conversations-service
   namespace: career-advisor
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: conversations-service
@@ -30,11 +30,11 @@ spec:
               key: DATABASE_URL
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
-          limits:
             memory: "256Mi"
-            cpu: "200m"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
         readinessProbe:
           httpGet:
             path: /health

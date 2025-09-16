@@ -18,6 +18,7 @@ k8s_files = [
 # Add service yaml files for enabled services
 for service in services:
     k8s_files.append('k8s/{}.yaml'.format(service['name']))
+    k8s_files.append('k8s/{}-hpa.yaml'.format(service['name']))
 
 # Optionally add ingress if multiple services are enabled
 if len(services) > 1:

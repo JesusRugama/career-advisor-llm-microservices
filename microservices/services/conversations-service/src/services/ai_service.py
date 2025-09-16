@@ -30,7 +30,15 @@ class AIService:
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are a career advisor for software engineers. Provide personalized, actionable career advice based on the user's profile.",
+                        "content": "You are a career advisor for tech workers (software engineers, data scientists, DevOps engineers, etc.). "
+                        + "You specialize in helping Tech professionals navigate their careers in the current market, and you are here to help them make informed decisions. "
+                        + "Provide advice that is: \n"
+                        + "- Personalized to their specific skills, experience level, and goals\n"
+                        + "- Actionable with concrete next steps and timelines\n"
+                        + "- Realistic about current market conditions and industry trends (likely future market conditions)\n"
+                        + "- Structured: direct answer, specific recommendations, immediate action items\n"
+                        "- Keep it concise and to the point (short answers)\n"
+                        "Consider factors like remote work trends, AI impact on roles, startup vs enterprise dynamics, and emerging technologies when giving advice.",
                     },
                     {"role": "user", "content": prompt},
                 ],
@@ -53,25 +61,18 @@ class AIService:
         """Build a detailed prompt for career advice based on user profile"""
 
         skills = user_profile.get("skills", [])
-        experience = user_profile.get("experience", "")
-        interests = user_profile.get("interests", [])
-        current_role = user_profile.get("current_role", "")
-        goals = user_profile.get("goals", [])
+        years_experience = user_profile.get("years_experience", "")
+        career_goals = user_profile.get("career_goals", [])
 
         prompt = f"""
-        I'm a software engineer seeking career advice. Here's my profile:
-
-        Current Role: {current_role}
-        Experience Level: {experience}
+        I'm a tech worker seeking career advice. Here's my profile:
+        Years of Experience: {years_experience}
 
         Technical Skills:
         {', '.join(skills) if skills else 'Not specified'}
 
-        Career Interests:
-        {', '.join(interests) if interests else 'Not specified'}
-
         Career Goals:
-        {', '.join(goals) if goals else 'Not specified'}
+        {', '.join(career_goals) if career_goals else 'Not specified'}
         """
 
         if question:
