@@ -84,7 +84,9 @@ async def create_conversation_message(
 
         # Save user message
         user_message = await message_repository.create_message(
-            conversation_id=conversation_id, is_human=True, content=message_request.message
+            conversation_id=conversation_id,
+            is_human=True,
+            content=message_request.message,
         )
 
         # Commit the user message first
@@ -164,7 +166,9 @@ async def create_conversation_and_message(
 
         # Create the message
         message = await message_repository.create_message(
-            conversation_id=conversation.id, is_human=True, content=message_request.message
+            conversation_id=conversation.id,
+            is_human=True,
+            content=message_request.message,
         )
 
         # Commit the transaction first
