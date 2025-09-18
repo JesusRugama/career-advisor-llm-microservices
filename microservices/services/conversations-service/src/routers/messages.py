@@ -6,10 +6,8 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../../../../shared"))
 # Add current directory to path for local imports
 sys.path.append(os.path.dirname(__file__))
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from uuid import UUID
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 
 from schemas import (
     MessageListResponse,
@@ -22,8 +20,8 @@ from schemas import (
 from repositories import ConversationRepository, MessageRepository
 from services.ai_service import AIService
 from feign_clients.users_client import UsersClient
+from dependencies import get_users_client, get_ai_service
 
-limiter = Limiter(key_func=get_remote_address)
 router = APIRouter()
 
 
@@ -63,14 +61,14 @@ async def get_conversation_messages(
 
 
 @router.post("/users/{user_id}/conversations/{conversation_id}/message")
-@limiter.limit("10/minute")
 async def create_conversation_message(
-    request: Request,
     user_id: UUID,
     conversation_id: UUID,
     message_request: CreateMessageRequest,
     conversation_repository: ConversationRepository = Depends(),
     message_repository: MessageRepository = Depends(),
+    users_client: UsersClient = Depends(get_users_client),
+    ai_service: AIService = Depends(get_ai_service),
 ) -> MessageResponse:
     """Send a message to a specific conversation and get AI career advice"""
     try:
@@ -94,7 +92,6 @@ async def create_conversation_message(
         await message_repository.db.refresh(user_message)
 
         # Get user profile from Users Service
-        users_client = UsersClient()
         user_profile = await users_client.get_user_profile(user_id)
 
         if not user_profile:
@@ -104,7 +101,6 @@ async def create_conversation_message(
             )
 
         # Get AI career advice
-        ai_service = AIService()
         ai_response = await ai_service.get_career_advice(
             user_profile=user_profile, question=message_request.message
         )
@@ -149,40 +145,44 @@ async def create_conversation_message(
 
 
 @router.post("/users/{user_id}/messages")
-@limiter.limit("10/minute")
 async def create_conversation_and_message(
-    request: Request,
     user_id: UUID,
     message_request: CreateMessageRequest,
-    message_repository: MessageRepository = Depends(),
     conversation_repository: ConversationRepository = Depends(),
+    message_repository: MessageRepository = Depends(),
+    users_client: UsersClient = Depends(get_users_client),
+    ai_service: AIService = Depends(get_ai_service),
 ) -> MessageWithConversationResponse:
-    """Create a new conversation with the first message"""
+    """Create a new conversation with the first message and get AI response"""
     try:
         # Always create new conversation
         conversation = await conversation_repository.create_conversation(
             user_id, "New Conversation"
         )
 
-        # Create the message
-        message = await message_repository.create_message(
-            conversation_id=conversation.id,
-            is_human=True,
-            content=message_request.message,
-        )
-
-        # Commit the transaction first
-        await message_repository.db.commit()
-
-        # Refresh objects to load all attributes after commit
-        await message_repository.db.refresh(message)
+        # Commit the conversation first
+        await conversation_repository.db.commit()
         await conversation_repository.db.refresh(conversation)
 
+        # Use the existing create_conversation_message logic
+        message_response = await create_conversation_message(
+            user_id=user_id,
+            conversation_id=conversation.id,
+            message_request=message_request,
+            conversation_repository=conversation_repository,
+            message_repository=message_repository,
+            users_client=users_client,
+            ai_service=ai_service,
+        )
+
+        # Return both the conversation and the AI message
         return MessageWithConversationResponse(
-            success=True,
-            message=MessageBase.model_validate(message),
+            success=message_response.success,
+            message=message_response.message,
             conversation=ConversationBase.model_validate(conversation).model_dump(),
         )
 
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error creating message: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error creating conversation and message: {str(e)}")

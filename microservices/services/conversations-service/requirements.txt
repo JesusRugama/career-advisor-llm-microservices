@@ -38,7 +38,6 @@ certifi==2025.7.14
 # Development tools (auto-reload, etc.)
 watchfiles==1.1.0
 python-multipart==0.0.20
-slowapi==0.1.9
 
 # AI
 openai==1.98.0
