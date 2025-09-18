@@ -7,7 +7,8 @@ from config import settings
 
 class UsersClient:
     def __init__(self):
-        self.base_url = settings.feign_client_url
+        # Use Kubernetes service name when running in cluster, localhost for local development
+        self.base_url = os.getenv('USERS_SERVICE_URL', 'http://users-service:8000')
         self.timeout = settings.feign_client_timeout
 
     async def get_user_profile(self, user_id: UUID) -> Optional[Dict[Any, Any]]:
@@ -17,6 +18,9 @@ class UsersClient:
         """
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             try:
+                print(f"Fetching user profile")
+                print(f"GET: {self.base_url}/api/users/{user_id}/profile")
+
                 response = await client.get(
                     f"{self.base_url}/api/users/{user_id}/profile"
                 )

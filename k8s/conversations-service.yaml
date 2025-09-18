@@ -28,6 +28,8 @@ spec:
             configMapKeyRef:
               name: career-advisor-config
               key: DATABASE_URL
+        - name: USERS_SERVICE_URL
+          value: "http://users-service:8000"
         resources:
           requests:
             memory: "256Mi"
