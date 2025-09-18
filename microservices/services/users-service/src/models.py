@@ -2,6 +2,7 @@ from sqlalchemy import Column, String, Integer, Text, JSON
 from sqlalchemy.dialects.postgresql import UUID
 from base import BaseModel
 
+
 class User(BaseModel):
     __tablename__ = "users"
 

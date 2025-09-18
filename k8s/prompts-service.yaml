@@ -4,7 +4,7 @@ metadata:
   name: prompts-service
   namespace: career-advisor
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: prompts-service

@@ -10,6 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from models import User, UserProfile
 
+
 class TestGetUserProfile:
     """Integration tests for the users service."""
 
@@ -39,7 +40,7 @@ class TestGetUserProfile:
         user_id = uuid4()
         user = User(id=user_id, name="John Doe", email="john@example.com")
         db_session.add(user)
-        
+
         # Create test user profile
         profile_id = uuid4()
         profile = UserProfile(
@@ -48,17 +49,17 @@ class TestGetUserProfile:
             years_experience=5,
             skills=["Python", "FastAPI", "PostgreSQL"],
             career_goals="Become a senior engineer",
-            preferred_work_style="remote"
+            preferred_work_style="remote",
         )
         db_session.add(profile)
         await db_session.commit()
 
         # Test the endpoint
         response = await client.get(f"/api/users/{user_id}/profile")
-        
+
         assert response.status_code == 200
         data = response.json()
-        
+
         assert data["success"] is True
         assert data["profile"] is not None
         assert data["profile"]["user_id"] == str(user_id)
@@ -71,9 +72,9 @@ class TestGetUserProfile:
     async def test_get_user_profile_user_not_found(self, client):
         """Test user profile retrieval when user doesn't exist."""
         non_existent_user_id = uuid4()
-        
+
         response = await client.get(f"/api/users/{non_existent_user_id}/profile")
-        
+
         assert response.status_code == 404
         data = response.json()
         assert data["detail"] == "User not found"
@@ -89,10 +90,10 @@ class TestGetUserProfile:
 
         # Test the endpoint
         response = await client.get(f"/api/users/{user_id}/profile")
-        
+
         assert response.status_code == 200
         data = response.json()
-        
+
         assert data["success"] is True
         assert data["profile"] is None
         assert data["message"] == "User profile not found"
@@ -104,7 +105,7 @@ class TestGetUserProfile:
         user_id = uuid4()
         user = User(id=user_id, name="Bob Smith", email="bob@example.com")
         db_session.add(user)
-        
+
         # Create test user profile with minimal data
         profile_id = uuid4()
         profile = UserProfile(
@@ -113,17 +114,17 @@ class TestGetUserProfile:
             years_experience=None,
             skills=None,
             career_goals=None,
-            preferred_work_style=None
+            preferred_work_style=None,
         )
         db_session.add(profile)
         await db_session.commit()
 
         # Test the endpoint
         response = await client.get(f"/api/users/{user_id}/profile")
-        
+
         assert response.status_code == 200
         data = response.json()
-        
+
         assert data["success"] is True
         assert data["profile"] is not None
         assert data["profile"]["user_id"] == str(user_id)

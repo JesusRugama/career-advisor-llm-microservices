@@ -10,9 +10,7 @@ class UsersClient:
         self.base_url = settings.feign_client_url
         self.timeout = settings.feign_client_timeout
 
-    async def get_user_profile(
-        self, user_id: UUID
-    ) -> Optional[Dict[Any, Any]]:
+    async def get_user_profile(self, user_id: UUID) -> Optional[Dict[Any, Any]]:
         """
         Get user profile by user ID from the Users Service.
         Returns the user profile data if found, None otherwise.
@@ -35,12 +33,8 @@ class UsersClient:
                     return None
 
             except httpx.RequestError as e:
-                print(
-                    f"Request error when fetching user profile {user_id}: {e}"
-                )
+                print(f"Request error when fetching user profile {user_id}: {e}")
                 return None
             except Exception as e:
-                print(
-                    f"Unexpected error when fetching user profile {user_id}: {e}"
-                )
+                print(f"Unexpected error when fetching user profile {user_id}: {e}")
                 return None

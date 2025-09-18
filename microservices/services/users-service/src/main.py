@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from database import close_engine
 from router import router as users_router
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Handle startup and shutdown events."""

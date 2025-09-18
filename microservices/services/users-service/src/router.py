@@ -6,6 +6,7 @@ from repository import UserRepository
 
 router = APIRouter()
 
+
 @router.get("/users/{user_id}/profile")
 async def get_user_profile(
     user_id: UUID, repository: UserRepository = Depends()
@@ -21,9 +22,7 @@ async def get_user_profile(
         profile = await repository.get_user_profile(user_id)
         if not profile:
             return UserProfileResponse(
-                success=True, 
-                profile=None, 
-                message="User profile not found"
+                success=True, profile=None, message="User profile not found"
             )
 
         profile_data = UserProfileBase.model_validate(profile)
