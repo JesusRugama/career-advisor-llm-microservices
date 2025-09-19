@@ -12,6 +12,7 @@ services = [
 k8s_files = [
     'k8s/namespace.yaml',
     'k8s/configmap.yaml',
+    'k8s/secrets.yaml',
     'k8s/postgres.yaml',
 ]
 

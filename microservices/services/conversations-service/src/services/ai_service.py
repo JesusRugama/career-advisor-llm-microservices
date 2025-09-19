@@ -62,7 +62,7 @@ class AIService:
 
         skills = user_profile.get("skills", [])
         years_experience = user_profile.get("years_experience", "")
-        career_goals = user_profile.get("career_goals", [])
+        career_goals = user_profile.get("career_goals", '')
 
         prompt = f"""
         I'm a tech worker seeking career advice. Here's my profile:
@@ -72,7 +72,7 @@ class AIService:
         {', '.join(skills) if skills else 'Not specified'}
 
         Career Goals:
-        {', '.join(career_goals) if career_goals else 'Not specified'}
+        {career_goals if career_goals else 'Not specified'}
         """
 
         if question:

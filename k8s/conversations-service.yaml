@@ -30,6 +30,11 @@ spec:
               key: DATABASE_URL
         - name: USERS_SERVICE_URL
           value: "http://users-service:8000"
+        - name: XAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: career-advisor-secrets
+              key: xai-api-key
         resources:
           requests:
             memory: "256Mi"

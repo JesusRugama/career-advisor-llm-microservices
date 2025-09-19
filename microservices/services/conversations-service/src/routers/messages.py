@@ -92,7 +92,12 @@ async def create_conversation_message(
         await message_repository.db.refresh(user_message)
 
         # Get user profile from Users Service
-        user_profile = await users_client.get_user_profile(user_id)
+        response = await users_client.get_user_profile(user_id)
+
+        user_profile = response.get("profile")
+
+        print(response)
+        print(response.get("profile"))
 
         if not user_profile:
             raise HTTPException(
